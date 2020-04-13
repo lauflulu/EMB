@@ -1,0 +1,38 @@
+function [g] = EMB_excludeData(data,fusionTime)
+% EMB_EXCLUDEDATA computes a data tensor g from data struct
+% samples with fusion events before timepoint T are excluded
+% normalization by reference dye is performed
+% dimensions: [N,I,T,X]=[Samples,genes,time (frame),space (droplet)]
+
+% excluder={data.dataSize};
+% excluder=squeeze(cat(3, excluder{:}));
+% excluder=(min(excluder,[],1)>=fusionTime)';
+
+a={data.r};
+a=cat(3, a{:});
+excluder=ones(size(a,3),1);
+% exclude samples starting with nan as well
+for n=1:length(data)
+    if ~(sum(isnan(a(1,:,n)))==0) || ~(sum(isnan(a(fusionTime,:,n)))==0)
+        excluder(n,1)=0;
+    end
+end
+
+data=data(excluder==1);
+
+a={data.YFP};
+b={data.RFP};
+c={data.Cy5};
+
+a=cat(3, a{:});
+b=cat(3, b{:});
+c=cat(3, c{:});
+
+FIy=a./c; FIy=FIy(:,2:6,:); FIy=permute(FIy,[3 1 2]);
+FIr=b./c; FIr=FIr(:,2:6,:); FIr=permute(FIr,[3 1 2]);
+
+N=sum(excluder); I=2; T=size(a,1); X=5;
+g=zeros(N,I,T,X);
+g(:,1,:,:)=FIy; g(:,2,:,:)=FIr;
+end
+
