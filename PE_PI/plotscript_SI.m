@@ -18,6 +18,7 @@ b=0.05; % bin size for binPDF in percent/100, scaled to max(meanG)
 t=49; % time point for profile plots etc.
 B=20; % number of bins for gaussPDF
 Boot=100; % number of bootstrap samples should be >1000 for good quality
+fusionTime=91;
 
 load(datafiles{3});
 
