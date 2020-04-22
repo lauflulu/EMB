@@ -1,6 +1,8 @@
 function [pdf, maxG] = EMB_g2binPDF(g,b)
 % EMB_BINPDF computes the joint conditional pdf p({g_i}|x) by binning
-% input raw fluorescence values g, normalized bin size b (0-1)
+% input
+% g: raw fluorescence values ,
+% b: normalized bin size (0-1)
 [N,I,X,T]=size(g);
 
 % to normalize bin edges from 0 to max(max(g)), normalized to max(mean(g))
@@ -14,7 +16,7 @@ maxG=zeros(1,I);
 
 for i=1:I
     edges{1,i}=[0:b:ceil(max_max(1,i)/max_mean(1,i)/b)*b]*max_mean(1,i);
-    maxG(1,i)=edges{1,i}(end)-(edges{1,i}(2)-edges{1,i}(1))/2;
+    maxG(1,i)=edges{1,i}(end);
     B(1,i)=length(edges{1,i})-1;
 end
 
