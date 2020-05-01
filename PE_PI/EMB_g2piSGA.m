@@ -1,7 +1,7 @@
 function [pi,perm] = EMB_g2piSGA(g,B)
 %EMB_g2CHEATPI calculates PI using inferred normal PDFs
 [N,I,X,T]=size(g);
-nPDFg=EMB_g2gaussPDF(g,B);
+nPDFg=EMB_g2gaussPDFadapt(g,B);
 
 %all combinations of genes
 perm= unique(nchoosek([zeros(1,I-1),1:I],I),'rows');

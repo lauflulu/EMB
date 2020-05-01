@@ -12,8 +12,8 @@ for b=1:B
     [PE,~]=fun(boot);
 	f = subsasgn(f,S,PE);
 end
-meanF=mean(f,1);
-stdF=std(f,[],1);
+meanF=squeeze(mean(f,1));
+stdF=squeeze(std(f,[],1));
 
 end
 

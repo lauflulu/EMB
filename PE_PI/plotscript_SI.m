@@ -42,11 +42,11 @@ covG=EMB_g2covG(g);
 stdY=squeeze(covG(1,1,:,:)).^0.5;
 stdR=squeeze(covG(2,2,:,:)).^0.5;
 
-[PE,perm] = EMB_g2gaussPE(g);
-P=size(perm,1);
-[PI,perm] = EMB_g2cheatPI(g,B);
+%[PE,perm] = EMB_g2gaussPE(g);
+%P=size(perm,1);
+%[PI,perm] = EMB_g2cheatPI(g,B);
 
-[~,meanPE,stdPE] = EMB_bootstrap(@EMB_g2gaussPE,g,Boot);
+%[~,meanPE,stdPE] = EMB_bootstrap(@EMB_g2gaussPE,g,Boot);
 
 %[~,meanPI,stdPI] = EMB_bootstrap(@(g)EMB_g2cheatPI(g,B),g,Boot); % this may take a while!
 
@@ -127,7 +127,7 @@ figure(14)
         imagesc(bPDF','XData', [0+b/2 maxGbin(1,1)-b/2], 'YData', [0+b/2 maxGbin(1,2)-b/2]);
         set(gca, 'Ydir', 'normal')
         
-        g1=linspace(0,maxGgauss(2,1));g2=linspace(0,maxGgauss(1,1));
+        g1=linspace(0,maxGgauss(2,1),B);g2=linspace(0,maxGgauss(1,1),B);
         [G1,G2] = meshgrid(g1,g2);
         gPDF=gaussPDF(:,:,x,91);
         sigma1 = mvnpdf([meanG(1,1,x,91)+1*covG(1,1,x,91)^0.5, meanG(1,2,x,91)],meanG(:,:,x,91),covG(:,:,x,91));
@@ -284,17 +284,20 @@ for sample=3%1:length(datafiles)
             legend('g1','g2','joint');xticks([0:2.5:7.5]);
 end
 %% PE
-time=0:90; time=time*5/60;
-
+time=0:12:90; time=time*5/60;
 load(datafiles{3});
 fusionTime=91;
 g=EMB_data2g(data,fusionTime);
-%g=g(:,:,:,1:12:91);
-%[PE,stdPE] = EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,true);
-[PE,meanPE,stdPE] = EMB_bootstrap(@EMB_g2gaussPE,g,1000);
-Perr=EMB_PE2Perr(meanPE);
+g=g(:,:,:,1:12:91);
+[N,I,X,T]=size(g);
+m=ceil([0.95,0.9,0.85,0.8,0.75,0.7,0.6,0.5]*N);
 
-T=91;
+[meanPE,stdPE] = EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,true);
+%[PE,meanPE,stdPE] = EMB_bootstrap(@(g)EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,false),g,10);
+%[PE,meanPE,stdPE] = EMB_bootstrap(@EMB_g2gaussPE,g,1000);
+[Pcorr,lb,ub]=EMB_PE2Pcorr(meanPE,stdPE);
+
+T=5;
 meanG=EMB_g2meanG(g);
 meanY=squeeze(meanG(1,1,:,T));
 meanR=squeeze(meanG(1,2,:,T));
@@ -319,38 +322,45 @@ figure(5)
 
     subplot(2,3,2)
         hold all
-        plot(1:5,squeeze(meanPE(1,1,:,T)),'o-b','LineWidth',2)
-        plot(1:5,squeeze(meanPE(1,2,:,T)),'o-r','LineWidth',2)
-        plot(1:5,squeeze(meanPE(1,3,:,T)),'o-k','LineWidth',2)
-        plot(1:5,squeeze(meanPE(1,1,:,T)+stdPE(1,1,:,T)),'--b','LineWidth',2)
-        plot(1:5,squeeze(meanPE(1,2,:,T)+stdPE(1,2,:,T)),'--r','LineWidth',2)
-        plot(1:5,squeeze(meanPE(1,3,:,T)+stdPE(1,3,:,T)),'--k','LineWidth',2)
-        plot(1:5,squeeze(meanPE(1,1,:,T)-stdPE(1,1,:,T)),'--b','LineWidth',2)
-        plot(1:5,squeeze(meanPE(1,2,:,T)-stdPE(1,2,:,T)),'--r','LineWidth',2)
-        plot(1:5,squeeze(meanPE(1,3,:,T)-stdPE(1,3,:,T)),'--k','LineWidth',2)
+        plot(1:5,squeeze(meanPE(1,:,T)),'o-b','LineWidth',2)
+        plot(1:5,squeeze(meanPE(2,:,T)),'o-r','LineWidth',2)
+        plot(1:5,squeeze(meanPE(3,:,T)),'o-k','LineWidth',2)
+        plot(1:5,squeeze(meanPE(1,:,T)+stdPE(1,:,T)),'--b','LineWidth',2)
+        plot(1:5,squeeze(meanPE(2,:,T)+stdPE(2,:,T)),'--r','LineWidth',2)
+        plot(1:5,squeeze(meanPE(3,:,T)+stdPE(3,:,T)),'--k','LineWidth',2)
+        plot(1:5,squeeze(meanPE(1,:,T)-stdPE(1,:,T)),'--b','LineWidth',2)
+        plot(1:5,squeeze(meanPE(2,:,T)-stdPE(2,:,T)),'--r','LineWidth',2)
+        plot(1:5,squeeze(meanPE(3,:,T)-stdPE(3,:,T)),'--k','LineWidth',2)
         plot(1:5,0.5*ones(1,5),'--k')
         plot(1:5,5*ones(1,5),'--k')
-        ylim([0,8]);xlim([0.5,5.5]);
+        %ylim([0,8]);
+        xlim([0.5,5.5]);
         xlabel('Droplet')
         ylabel('\sigma_x (droplets)')
         box('on');
         
     subplot(2,3,3)
         hold all
-        plot(1:5,Perr(1,:,T),'--.b','MarkerSize',20)
-        plot(1:5,Perr(2,:,T),'--.r','MarkerSize',20)
-        plot(1:5,Perr(3,:,T),'--.k','MarkerSize',20)
+        plot(1:5,Pcorr(1,:,T),'-.b','MarkerSize',20)
+        plot(1:5,Pcorr(2,:,T),'-.r','MarkerSize',20)
+        plot(1:5,Pcorr(3,:,T),'-.k','MarkerSize',20)
+        plot(1:5,lb(1,:,T),'--b')
+        plot(1:5,lb(2,:,T),'--r')
+        plot(1:5,lb(3,:,T),'--k')
+        plot(1:5,ub(1,:,T),'--b')
+        plot(1:5,ub(2,:,T),'--r')
+        plot(1:5,ub(3,:,T),'--k')
         xlim([0.5,5.5]);ylim([0,1]);box('on');
         xlabel('Droplet')
-        ylabel('P_{err}')
+        ylabel('P_{corr}')
     
     for p=1:3
         subplot(2,3,3+p)
-            plot(time,squeeze(Perr(p,:,:)))
+            plot(time,squeeze(Pcorr(p,:,:)))
             xlim([0,7.5]);xticks(0:2.5:7.5);
             box('on'); ylim([0,1]);
             xlabel('Time (h)')
-            ylabel('P_{err}')
+            ylabel('P_{corr}')
     end
     
 

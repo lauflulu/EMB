@@ -1,4 +1,4 @@
-function [PI,stdPI] = EMB_extrapolatePE(fun,g,K,m,plotON)
+function [PE,stdPE] = EMB_extrapolatePE(fun,g,K,m,plotON)
 %EMB_EXTRAPOLATEPI Summary of this function goes here
 %   Detailed explanation goes here
 M=size(m,2);
@@ -12,15 +12,15 @@ pi=zeros(K,M,P,X,T);
 
 for k=1:K
     for n=1:M
-            draw=randsample(N,m(n),false); %true/false=w/wo replacement
+            draw=randsample(N,m(n),true); %true/false=w/wo replacement
             h=g(draw,:,:,:);
             [pi(k,n,:,:,:),~]=fun(h);
     end
 end
 
 % extrapolate PI
-PI=zeros(P,X,T);
-stdPI=zeros(P,X,T);
+PE=zeros(P,X,T);
+stdPE=zeros(P,X,T);
 
 y=1./m';
 if plotON
@@ -34,15 +34,15 @@ for p=1:P
 
             [fM,~] = fit(y,meanI','poly1');
             ci=confint(fM,0.68);
-            PI(p,x,t)=fM(0);
-            stdPI(p,x,t) = ci(2,2)-fM(0);    
+            PE(p,x,t)=fM(0);
+            stdPE(p,x,t) = ci(2,2)-fM(0);    
         end
         if plotON
             subplot(1,5,x)
             hold all
             plot([0;y],fM([0;y]),'-k')
             errorbar(y,meanI,stdI,'--.','MarkerSize',20)
-            errorbar(0,PI(p,x,t),stdPI(p,x,t),'.r','MarkerSize',20)
+            errorbar(0,PE(p,x,t),stdPE(p,x,t),'.r','MarkerSize',20)
             xlabel('1/M'); ylabel('PE (dropelts)');
             limx=max(y);
             xlim([-0.05*limx,1.05*limx])
