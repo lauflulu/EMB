@@ -1,14 +1,21 @@
 function binaryBF(openDir, saveDir, filename){
 	open(openDir + filename);
-	
+
+	// moderate filtering
 	run("Median...", "radius=2 stack");
 	run("Duplicate...", "duplicate");
+
+	// blurred edge image
 	run("Find Edges", "stack");
 	run("Gaussian Blur...", "sigma=5 stack");
+
+	// thresholding
 	run("Convert to Mask", "method=Otsu background=Dark calculate black");
 	run("Analyze Particles...", "size=100-Infinity pixel show=Masks stack");
 	run("Invert LUT");
 	run("Invert", "stack");
+
+	// binary operations to improve robustness of segmentation
 	run("Options...", "iterations=5 count=1 black do=Open stack");
 	run("Adjustable Watershed", "tolerance=5 stack");
 	run("Invert", "stack");
@@ -22,11 +29,12 @@ function binaryBF(openDir, saveDir, filename){
 
 print("binary BF started");
 run("Close All");
-setBatchMode(false);
+setBatchMode(true);
 
 baseDir=getDirectory("Choose a Directory");
 dataSetList = getFileList(baseDir);
 
+// loop over all data sets
 for (a = 0; a < dataSetList.length; a++) {
 	dataSet=substring(dataSetList[a],0,lengthOf(dataSetList[a])-1) + "\\";
 	openDir=baseDir + dataSet +"\o4-cropped_videos\\";
@@ -35,7 +43,7 @@ for (a = 0; a < dataSetList.length; a++) {
 	File.makeDirectory(saveDir);
 	list = getFileList(openDir); 
 	
-	// estimate finishing time
+	// start timer to estimate finishing time
 	startTime=getTime()/1000/60;
 	getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
 	stackN = 0;
@@ -45,10 +53,15 @@ for (a = 0; a < dataSetList.length; a++) {
 		}
 	}
 	current = 0;
+
+	// loop through all position stacks
 	for (i = 0; i < list.length; i++){
-		if (endsWith(list[i], ".tif") && startsWith(list[i], "C1")){ 
-	    	current +=1;
+		if (endsWith(list[i], "C1.tif")){
+			// creates trimmed binary masks using segmentation based on edge detection
 	    	binaryBF(openDir, saveDir, list[i]);
+
+	    	// the timer
+	    	current +=1;
 	    	currentTime=getTime()/1000/60;
 			timeElapsed=currentTime-startTime;
 			predictedTotalTime=timeElapsed*stackN/current;
@@ -58,7 +71,7 @@ for (a = 0; a < dataSetList.length; a++) {
 		}
 	}
 }
-//setBatchMode(false);
+setBatchMode(false);
 print("binary BF finished");
 
 
