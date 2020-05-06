@@ -34,7 +34,7 @@ end
 % extrapolate PI
 PI=zeros(P,T);
 stdPI=zeros(P,T);
-
+conf=0.6827;
 x=1./m';
 if plotON
     figure
@@ -55,17 +55,17 @@ for p=1:P
             [fM,~] = fit(x,meanI(:,b),'poly1');
             fMs{b,1}=fM;
             meanI0(b,1)=fM(0);
-            ci=confint(fM,0.68);
+            ci=confint(fM,conf);
             stdI0(b,1) = ci(2,2)-fM(0);
         end
             [fB,~] = fit(y,meanI0,'poly1');
             PI(p,t)=fB(0);
-            ci=confint(fB,0.68);
+            ci=confint(fB,conf);
             stdPI(p,t) = ci(2,2)-fB(0);
         else
             [fM,~] = fit(x,meanI','poly1');
             fMs{1,1}=fM;
-            ci=confint(fM,0.68);
+            ci=confint(fM,conf);
             PI(p,t)=fM(0);
             stdPI(p,t) = ci(2,2)-fM(0);
         end

@@ -17,12 +17,12 @@ S=length(datafiles);
     
 %% PI SGA, time traces
 time=0:90; time=time*5/60;
-tpoints=91;
+tpoints=1:20;
 
 PIsga=cell(S,1);
 stdPIsga=cell(S,1);
 tic;
-for s=1:S
+for s=1%:S
     load(datafiles{s});
 
     fusionTime=91;
@@ -38,9 +38,9 @@ for s=1:S
     % number of iterations for each (bin,m)
     K=100;
     %[PIsga{s,1},stdPIsga{s,1}] = EMB_g2piSGA(g,100);
-    %[PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,true);
+    [PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,true);
     %[PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePIv3(@EMB_g2piSGA,g,K,m,100,false,true);
-    [PIdir{s,1},stdPIdir{s,1}] = EMB_extrapolatePIv3(@EMB_g2piDIR,g,K,m,2:6,false,true);
+    %[PIdir{s,1},stdPIdir{s,1}] = EMB_extrapolatePIv3(@EMB_g2piDIR,g,K,m,2:6,false,true);
 end
 toc
 %%
