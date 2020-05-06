@@ -17,5 +17,6 @@ for x=1:X
         gaussPDF(:,:,x,t)=reshape(mvnpdf(G,squeeze(meanG(:,:,x,t)),covG(:,:,x,t)),B,B);
     end
 end
+
 end
 

@@ -18,15 +18,15 @@ for p=1:P
     else
         pdf=nPDFg;
     end
-    pdf=pdf./sum(pdf,1:I); %conditional pdf
-    pdf_g=sum(pdf,I+1)./sum(pdf,1:(I+1)); %marginal pdf g
-    pdf_x=sum(pdf,1:I)./sum(pdf,1:(I+1)); % marginal pdf x
+    pdf=pdf./sum(pdf,1:I); %conditional pdf p({g_i}|x,t)
+    pdf_g=sum(pdf,I+1)./sum(pdf,1:(I+1)); %marginal pdf_g(g)
+    pdf_x=sum(pdf,1:I)./sum(pdf,1:(I+1)); % marginal pdf_x(x)
     for t=1:T
         int_YR=zeros(5,1);
         for x=1:5
             i_YR=log2( pdf(:,:,x,t)./(pdf_g(:,:,1,t))); 
             i_YR(i_YR==inf)=0;
-            int_YR(x,1)=nansum(nansum(pdf(:,:,x,t)/pdf_x(1,1,x,t).*i_YR));
+            int_YR(x,1)=nansum(nansum(pdf(:,:,x,t).*i_YR));
         end
         PI(p,t)=nansum(squeeze(pdf_x(1,1,:,t)) .* int_YR);
     end

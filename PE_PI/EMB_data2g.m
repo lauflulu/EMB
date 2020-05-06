@@ -2,6 +2,7 @@ function [g] = EMB_data2g(data,fusionTime)
 % EMB_data2g computes a data tensor g from data struct
 % samples with fusion events before timepoint T are excluded
 % normalization by reference dye is performed
+% for each i, g is normalized to the max(mean g)
 % dimensions: [N,I,X,T]=[Samples,genes,time (frame),space (droplet)]
 
 % exclude samples starting with nan between frame 1 and fusion time
@@ -20,8 +21,10 @@ b={data.RFP}; b=cat(3, b{:});
 c={data.Cy5}; c=cat(3, c{:});
 
 % normalization by reference dye
-FIy=a./c; FIy=FIy(1:fusionTime,2:6,:); FIy=permute(FIy,[3 2 1]);
-FIr=b./c; FIr=FIr(1:fusionTime,2:6,:); FIr=permute(FIr,[3 2 1]);
+FIy=a./c; FIy=FIy(1:fusionTime,2:6,:); 
+FIy=permute(FIy,[3 2 1]); FIy=FIy/max(mean(FIy,1),[],'all');
+FIr=b./c; FIr=FIr(1:fusionTime,2:6,:); 
+FIr=permute(FIr,[3 2 1]); FIr=FIr/max(mean(FIr,1),[],'all');
 
 % write in g
 N=sum(excluder); I=2; T=fusionTime; X=5;
