@@ -1,6 +1,6 @@
 function [t,outcome]= EMB_circuit_decay(a)
 
-global  nspecies alphamax tRNA tmat1 tmat2 t1 t2 KdLacI nLacI KdTetR nTetR kon koff
+global  nspecies alphamax tRNA tmat1 tmat2 t1 t2 KdLacI nLacI KdTetR nTetR kon koff kdeg Kdeg
 nspecies = 8; % IPTG, free LacI, IPTG-LacI, RFP, RFPmat, TetR, YFP, YFPmat
 
 alphamax = 100e-12*60; % expression factor, around 100pM/s and up, from Schwarz-Schilling, Aufinger et al. 
@@ -17,6 +17,9 @@ nTetR = 4.3; % Hill coefficient, TetR binding to pTetO, determined from bulk fit
 
 kon = 7.2e6; % /M/min, on-rate of IPTG binding LacI, from Xu et al.
 koff = 12.6; %/min, off-rate of IPTG binding LacI, from Xu et al.
+kdeg = 15e-9; % M/min, rate of 0th-order protein degradation, from Karzbrun et al.
+Kdeg = 1e-9; % M, deducted from Karzbrun et al.
+
 
 
 %initialization
