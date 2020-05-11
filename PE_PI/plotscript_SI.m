@@ -175,10 +175,10 @@ S=length(datafiles);
 PI=cell(S,1);
 stdPI=cell(S,1);
 
-for sample=1:length(datafiles)
-    sample
+for s=1:length(datafiles)
+    s
     
-    load(datafiles{sample});
+    load(datafiles{s});
 
     fusionTime=91;
     g=EMB_data2g(data,fusionTime);
@@ -201,11 +201,11 @@ for sample=1:length(datafiles)
     for i=3:B
         [PIb(i-2,:),stdPIb(i-2,:)] = EMB_extrapolatePIv1(@EMB_g2piDIR,g,K,m,binNumber(1:i),true,false);
     end
-    PI{S,1}=PIb; stdPI{S,1}=stdPIb;
+    PI{s,1}=PIb; stdPI{s,1}=stdPIb;
     figure(3)
-        subplot(5,2,sample)
+        subplot(5,2,s)
         hold all
-        errorbar(binNumber(3:B)'*ones(1,3),PIb,stdPIb,'--o')
+        errorbar(binNumber(3:B)'*ones(1,3),PI{s,1},stdPI{s,1},'--o')
         plot(binNumber,zeros(1,B),'--k')
         plot(binNumber,0.1*ones(1,B),'--k')
         ylim([-0.1,1.7]); box('on'); xlim([0,21]);
@@ -218,13 +218,13 @@ Bmax(Bmax==0)=nan;
 Bmax=min(Bmax,[],1)-1;
 Bmax(isnan(Bmax))=21;
 Bmax(Bmax==3)=nan;
-Bstar(sample,:)=Bmax;
+Bstar(s,:)=Bmax;
 end
 %% PI DIR/ SGA, extrapolation for t=91
 % a B*=5 is a valid choice for estimating single gene PI for
 % all data sets except 100 mM full (N=9) and 1 mM ctrl1 (N=12)
-for sample=3%1:length(datafiles)
-    load(datafiles{sample});
+for s=3%1:length(datafiles)
+    load(datafiles{s});
 
     fusionTime=91;
     g=EMB_data2g(data,fusionTime);
@@ -259,8 +259,8 @@ end
 % all data sets except 100 mM full (N=9) and 1 mM ctrl1 (N=12)
 time=0:90; time=time*5/60;
 
-for sample=3%1:length(datafiles)
-    load(datafiles{sample});
+for s=3%1:length(datafiles)
+    load(datafiles{s});
 
     fusionTime=91;
     g=EMB_data2g(data,fusionTime);
