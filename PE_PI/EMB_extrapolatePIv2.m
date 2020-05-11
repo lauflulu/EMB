@@ -1,6 +1,5 @@
 function [PI,stdPI] = EMB_extrapolatePIv2(fun,g,K,m,binNumber,shuffle,plotON)
-%EMB_EXTRAPOLATEPI Summary of this function goes here
-%   Detailed explanation goes here
+%EMB_EXTRAPOLATEPI errorbars are confints/tinv
 M=size(m,2);
 B=size(binNumber,2);
 [N,I,X,T]=size(g);

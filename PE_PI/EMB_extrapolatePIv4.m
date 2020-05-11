@@ -1,5 +1,5 @@
-function [PI,stdPI] = EMB_extrapolatePIv2(fun,g,K,m,binNumber,shuffle,plotON)
-%EMB_EXTRAPOLATEPI error bar is SD of MI estimate of smalles subsample
+function [PI,stdPI] = EMB_extrapolatePIv4(fun,g,K,m,binNumber,shuffle,plotON)
+%EMB_EXTRAPOLATEPI error bar is SD of MI estimate of smallest subsample
 M=size(m,2);
 B=size(binNumber,2);
 [N,I,X,T]=size(g);

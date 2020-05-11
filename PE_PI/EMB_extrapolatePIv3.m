@@ -1,6 +1,5 @@
 function [PI,stdPI] = EMB_extrapolatePIv3(fun,g,K,m,binNumber,shuffle,plotON)
-%EMB_EXTRAPOLATEPI Summary of this function goes here
-%   Detailed explanation goes here
+%EMB_EXTRAPOLATEPI error bars are SD of K individual fits
 M=size(m,2);
 B=size(binNumber,2);
 [N,I,X,T]=size(g);

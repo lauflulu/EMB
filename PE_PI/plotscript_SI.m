@@ -176,6 +176,8 @@ PI=cell(S,1);
 stdPI=cell(S,1);
 
 for sample=1:length(datafiles)
+    sample
+    
     load(datafiles{sample});
 
     fusionTime=91;
@@ -197,7 +199,7 @@ for sample=1:length(datafiles)
     stdPIb=zeros(B-2,3);
 
     for i=3:B
-        [PIb(i-2,:),stdPIb(i-2,:)] = EMB_extrapolatePIv4(@EMB_g2piDIR,g,K,m,binNumber(1:i),true,false);
+        [PIb(i-2,:),stdPIb(i-2,:)] = EMB_extrapolatePIv1(@EMB_g2piDIR,g,K,m,binNumber(1:i),true,false);
     end
     PI{S,1}=PIb; stdPI{S,1}=stdPIb;
     figure(3)
@@ -211,7 +213,7 @@ for sample=1:length(datafiles)
     
       
 bb=binNumber(3:B)'*ones(1,3);
-Bmax=bb.*((PIb(:,:)-stdPIb(:,:))>tol); 
+Bmax=bb.*((PIb(:,:)+stdPIb(:,:))>tol); 
 Bmax(Bmax==0)=nan;
 Bmax=min(Bmax,[],1)-1;
 Bmax(isnan(Bmax))=21;

@@ -33,8 +33,8 @@ for s=1:S
     g=g(:,:,:,tpoints);
     [N,I,X,T]=size(g);
     
-    if N*0.5>8
-        m=flip(unique(ceil(N*0.5:N/12:N-1)));
+    if N>12
+        m=flip(unique(ceil((6:11)/12*N)));
     else
         m=flip(7:N);
     end
