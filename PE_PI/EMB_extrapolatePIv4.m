@@ -24,8 +24,6 @@ for k=1:K
                 end
             end
             pi(k,n,b,:,:)=fun(h,binNumber(b));
-%               pi(k,n,b,:,:)=EMB_g2piDIR(h,bin(b));
-        %   pi(k,n,b,:,:)=EMB_g2piFGA(h,bin(b));
         end
     end
 end

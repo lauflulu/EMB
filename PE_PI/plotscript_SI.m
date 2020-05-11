@@ -170,38 +170,48 @@ figure(14)
 % a B*=5 is a valid choice for estimating single gene PI for
 % all data sets except 100 mM full (N=9) and 1 mM ctrl1 (N=12)
 Bstar=zeros(10,3);
+
+S=length(datafiles);
+PI=cell(S,1);
+stdPI=cell(S,1);
+
 for sample=1:length(datafiles)
-load(datafiles{sample});
+    load(datafiles{sample});
 
-fusionTime=91;
-g=EMB_data2g(data,fusionTime);
-g=g(:,:,:,91);
-[N,I,X,T]=size(g);
-m=ceil([0.95,0.9,0.85,0.8,0.75,0.5]*N);
-% number of iterations for each (bin,m)
-K=100;
-tol=0.1;
-binNumber=2:20;
-B=length(binNumber);
-PIb=zeros(B-2,3);
-stdPIb=zeros(B-2,3);
+    fusionTime=91;
+    g=EMB_data2g(data,fusionTime);
+    g=g(:,:,:,91);
+    [N,I,X,T]=size(g);
+    
+    if N>12
+        m=flip(unique(ceil((6:11)/12*N)));
+    else
+        m=flip(7:N);
+    end
+    
+    K=100;
+    tol=0.1;
+    binNumber=2:20;
+    B=length(binNumber);
+    PIb=zeros(B-2,3);
+    stdPIb=zeros(B-2,3);
 
-for i=3:B
-    [PIb(i-2,:),stdPIb(i-2,:)] = EMB_extrapolatePI(@EMB_g2piDIR,g,K,m,binNumber(1:i),true,false);
-    i
-end
-figure(3)
-    subplot(5,2,sample)
-    hold all
-    errorbar(binNumber(3:B)'*ones(1,3),PIb,stdPIb,'--o')
-    plot(binNumber,zeros(1,B),'--k')
-    plot(binNumber,0.1*ones(1,B),'--k')
-    ylim([-0.1,1.7]); box('on'); xlim([0,21]);
-    xlabel('B*');ylabel('PI (bits)');
+    for i=3:B
+        [PIb(i-2,:),stdPIb(i-2,:)] = EMB_extrapolatePIv4(@EMB_g2piDIR,g,K,m,binNumber(1:i),true,false);
+    end
+    PI{S,1}=PIb; stdPI{S,1}=stdPIb;
+    figure(3)
+        subplot(5,2,sample)
+        hold all
+        errorbar(binNumber(3:B)'*ones(1,3),PIb,stdPIb,'--o')
+        plot(binNumber,zeros(1,B),'--k')
+        plot(binNumber,0.1*ones(1,B),'--k')
+        ylim([-0.1,1.7]); box('on'); xlim([0,21]);
+        xlabel('B*');ylabel('PI (bits)');
     
       
 bb=binNumber(3:B)'*ones(1,3);
-Bmax=bb.*((PIb(:,:)+stdPIb(:,:))>tol); 
+Bmax=bb.*((PIb(:,:)-stdPIb(:,:))>tol); 
 Bmax(Bmax==0)=nan;
 Bmax=min(Bmax,[],1)-1;
 Bmax(isnan(Bmax))=21;

@@ -17,10 +17,13 @@ S=length(datafiles);
     
 %% PI SGA, time traces
 time=0:90; time=time*5/60;
-tpoints=91;
+tpoints=1:91;
 
 PIsga=cell(S,1);
 stdPIsga=cell(S,1);
+PIdir=cell(S,1);
+stdPIdir=cell(S,1);
+
 tic;
 for s=1:S
     load(datafiles{s});
@@ -38,13 +41,13 @@ for s=1:S
     % number of iterations for each (bin,m)
     K=100;
     %[PIsga{s,1},stdPIsga{s,1}] = EMB_g2piSGA(g,100);
-    %[PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,true);
+    [PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,false);
     %[PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePIv3(@EMB_g2piSGA,g,K,m,100,false,true);
-    [PIdir{s,1},stdPIdir{s,1}] = EMB_extrapolatePIv3(@EMB_g2piDIR,g,K,m,2:6,false,true);
+    [PIdir{s,1},stdPIdir{s,1}] = EMB_extrapolatePI(@EMB_g2piDIR,g,K,m,2:6,false,false);
 end
 toc
 %%
-for s=1%:S
+for s=1:S
     
     load(datafiles{s});
 
@@ -55,7 +58,7 @@ for s=1%:S
     figure(11)
     
     
-        %subplot(5,2,s)
+        subplot(5,2,s)
             hold all
             plot(time(tpoints), PIsga{s,1}, '-');set(gca,'ColorOrderIndex',1)
             plot(time(tpoints), PIsga{s,1}+stdPIsga{s,1}, '--');set(gca,'ColorOrderIndex',1)
@@ -66,8 +69,8 @@ for s=1%:S
             title(sprintf('N = %d',N));
 end
 %% endpoint PI comparison
- load('analyze_data\PIdir_t91_200430.mat')
- load('analyze_data\PIsga_200430.mat')
+ %load('analyze_data\PIdir_t91_200430.mat')
+ %load('analyze_data\PIsga_200430.mat')
  t=91;
  PIsga_end=zeros(S,3);
  stdPIsga_end=zeros(S,3);
@@ -76,8 +79,8 @@ end
  for s=1:S
      PIsga_end(s,:)=PIsga{s,1}(:,t);
      stdPIsga_end(s,:)=stdPIsga{s,1}(:,t);
-     PIdir_end(s,:)=PIdir{s,1}(:,1);
-     stdPIdir_end(s,:)=stdPIdir{s,1}(:,1);
+     PIdir_end(s,:)=PIdir{s,1}(:,t);
+     stdPIdir_end(s,:)=stdPIdir{s,1}(:,t);
  end
  xpoints=[1:10]'*[1,1,1];
  
