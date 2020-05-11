@@ -371,7 +371,16 @@ figure(5)
 
 
 %% droplet and bilayer size
-[Rb,Rd,Ab,Vd,rl,rr,d] = EMB_data2geometry(data);
+for s=1:10
+load(datafiles{s});
+fusionTime=91;
+time=0:(fusionTime-1); time=time*5/60;
+
+[Rb,Rd,Ab,Vd,rl,rr,d] = EMB_data2geometry(data,fusionTime);
+Rb=Rb(1:fusionTime,:,:); Rd=Rd(1:fusionTime,:,:);
+Ab=Ab(1:fusionTime,:,:); Vd=Vd(1:fusionTime,:,:);
+rl=rl(1:fusionTime,:,:); rr=rr(1:fusionTime,:,:);
+d=d(1:fusionTime,:,:);
 
 meanAb=mean(Ab,2:3,'omitnan');
 stdAb=std(Ab,[],2:3,'omitnan');
@@ -388,52 +397,152 @@ meanVd_inter=mean(Vd,2,'omitnan');
 stdVd_inter=std(meanVd_inter,[],3,'omitnan');
 CVVd_inter=stdVd_inter./mean(meanVd_inter,3,'omitnan');
 
-theta=(asin(rl)+asin(rr))/2/pi*180;
-theta2=180-acos(-(d.^2-(Rb.*rl.^(-1)).^2-(Rb.*rr.^(-1)).^2)./(Rb.*rr.^(-1))./(Rb.*rl.^(-1)))/pi*180;
+theta=abs((asin(rl)+asin(rr))/2);
+theta2=abs(pi-acos(-(d.^2-(Rb.*rl.^(-1)).^2-(Rb.*rr.^(-1)).^2)./(Rb.*rr.^(-1))./(Rb.*rl.^(-1))));
 D=Rb.*((rl.^(-2)-1).^0.5 + (rr.^(-2)-1).^0.5);
-%%
+
+meanTheta=mean(theta,2:3,'omitnan');
+stdTheta=std(theta,[],2:3,'omitnan');
+
 figure(7)     
-    subplot(3,2,1)
+    if s==3
+    subplot(3,3,2)
         hold all
+        edges=0:500:14000;
+        histogram(Ab(1,:,:),edges)
+        histogram(Ab(25,:,:),edges)
+        histogram(Ab(91,:,:),edges)
+        legend('0 h','2 h','7.5 h');
+        box('on');xlim([min(edges),max(edges)]);
+    subplot(3,3,1)
+        hold all
+        %plot(time,reshape(Ab,fusionTime,[]),'-k');
         plot(time,meanAb,'-r','LineWidth',3)
         plot(time,meanAb+stdAb,'-b','LineWidth',3)
         plot(time,meanAb-stdAb,'-b','LineWidth',3)
-        box('on');xlabel('Time (h)');ylabel('DIB Area (?m^2)');
+        box('on');xlabel('Time (h)');ylabel('DIB Area (um^2)');
+        ylim([min(edges),max(edges)]); xlim([0,7.5])
     
-    subplot(3,2,2)
+        
+    subplot(3,3,5)
         hold all
+        edges=0:2e5:4e6;
+        histogram(Vd(1,:,:),edges)
+        histogram(Vd(25,:,:),edges)
+        histogram(Vd(91,:,:),edges)
+        legend('0 h','2 h','7.5 h');
+        box('on');xlim([min(edges),max(edges)]);
+%     subplot(3,3,9)
+%         hold all
+%         for x=1:6
+%             set(gca,'ColorOrderIndex',x)
+%             errorbar(x-1,mean(Vd(1,x,:),3),std(Vd(1,x,:),[],3),'o','LineWidth',3);
+%             text(x-1.5,2e5,sprintf('%2.1f',std(Vd(1,x,:),[],3)/mean(Vd(1,x,:),3)*100))
+%         end
+%         box('on');xlabel('Droplet Number');ylabel('Droplet Volume at 0 h (um^3)');
+%         ylim([0,2.5e6]); xlim([-0.5,5.5])
+%         box('on');
+        
+    subplot(3,3,4)
+        hold all
+        %plot(time,reshape(Vd,fusionTime,[]),'-k');
         plot(time,meanVd,'-r','LineWidth',3)
         plot(time,meanVd+stdVd,'-b','LineWidth',3)
         plot(time,meanVd-stdVd,'-b','LineWidth',3)
-        box('on');xlabel('Time (h)');ylabel('Droplet Volume (?m^3)');
+        box('on');xlabel('Time (h)');ylabel('Droplet Volume (um^3)');
+        ylim([min(edges),max(edges)]);xlim([0,7.5])
+    
+    subplot(3,3,8)
+        hold all
+        edges=pi/10:pi/100:pi*4/10;
+        histogram(theta(1,:,:),edges)
+        histogram(theta(25,:,:),edges)
+        histogram(theta(91,:,:),edges)
+        legend('0 h','2 h','7.5 h');
+        box('on')
+        xlim([pi/10,pi*4/10]);xticks([pi/10:pi/10:pi*4/10;]);    
+    subplot(3,3,7)
+        hold all
+        %plot(time,reshape(theta,fusionTime,[]),'-k');
+        plot(time,meanTheta,'-r','LineWidth',3)
+        plot(time,meanTheta+stdTheta,'-b','LineWidth',3)
+        plot(time,meanTheta-stdTheta,'-b','LineWidth',3)
+        box('on');xlabel('Time (h)');ylabel('Theta (rad)');
+        ylim([pi/10,pi*4/10]);xlim([0,7.5]);yticks([pi/10:pi/10:pi*4/10;]); 
+    
         
-    subplot(3,2,3)
+    
+    end
+    
+    subplot(3,3,6)
         hold all
-        plot(squeeze(rl(1,:,:)),squeeze(rr(1,:,:)),'ob')
-        plot(squeeze(rl(13,:,:)),squeeze(rr(49,:,:)),'or')
-        plot(squeeze(rl(49,:,:)),squeeze(rr(91,:,:)),'ok')
-        box('on');xlabel('Rb/Rl');ylabel('Rb/Rr');
-    subplot(3,2,4)
+        set(gca,'ColorOrderIndex',s)
+        errorbar(s,meanVd(1,1),stdVd(1,1),'o','LineWidth',3);
+        text(s-0.5,2e5,sprintf('%2.1f',stdVd(1,1)/meanVd(1,1)*100))
+        box('on');xlabel('Data Set Number');ylabel('Droplet Volume at 0 h (um^3)');
+        ylim([0,2.5e6]); xlim([0.5,10.5]) 
+    subplot(3,3,3)
         hold all
-        plot(squeeze(Rb(1,:,:)),squeeze(theta(1,:,:)),'ob');
-        plot(squeeze(Rb(13,:,:)),squeeze(theta(13,:,:)),'or');
-        plot(squeeze(Rb(49,:,:)),squeeze(theta(49,:,:)),'ok');
-        box('on');xlabel('Rb');ylabel('theta');
-    subplot(3,2,5)
+        set(gca,'ColorOrderIndex',s)
+        errorbar(s,meanAb(1,1),stdAb(1,1),'o','LineWidth',3);set(gca,'ColorOrderIndex',s)
+        errorbar(s,meanAb(25,1),stdAb(25,1),'o','LineWidth',3);set(gca,'ColorOrderIndex',s)
+        errorbar(s,meanAb(91,1),stdAb(91,1),'o','LineWidth',3);
+        text(s-0.5,meanAb(1,1),sprintf('%2.1f',stdAb(1,1)/meanAb(1,1)*100))
+        text(s-0.5,meanAb(25,1),sprintf('%2.1f',stdAb(25,1)/meanAb(25,1)*100))
+        text(s-0.5,meanAb(91,1),sprintf('%2.1f',stdAb(91,1)/meanAb(91,1)*100))
+        box('on');xlabel('Data Set Number');ylabel('DIB Area 0 and 7.5 h (um^2)');
+        ylim([0,1.4e4]); xlim([0.5,10.5]) 
+    subplot(3,3,9)
         hold all
-        plot(squeeze(d(1,:,:)),squeeze(D(1,:,:)),'ob')
-        plot(squeeze(d(13,:,:)),squeeze(D(49,:,:)),'or')
-        plot(squeeze(d(49,:,:)),squeeze(D(91,:,:)),'ok')
-        plot(0:140,0:140,'-g','LineWidth',3)
-        box('on');xlabel('d');ylabel('D');
-    subplot(3,2,6)
-        hold all
-        plot(squeeze(theta(1,:,:)),squeeze(theta2(1,:,:)),'ob');
-        plot(squeeze(theta(13,:,:)),squeeze(theta2(13,:,:)),'or');
-        plot(squeeze(theta(49,:,:)),squeeze(theta2(49,:,:)),'ok');
-        plot(0:180,0:180,'-g','LineWidth',3)
-        box('on');xlabel('Rb');ylabel('theta2');
-
+        set(gca,'ColorOrderIndex',s)
+        errorbar(s,meanTheta(1,1),stdTheta(1,1),'o','LineWidth',3);set(gca,'ColorOrderIndex',s)
+        errorbar(s,meanTheta(25,1),stdTheta(25,1),'o','LineWidth',3);set(gca,'ColorOrderIndex',s)
+        errorbar(s,meanTheta(91,1),stdTheta(91,1),'o','LineWidth',3);
+        text(s-0.5,meanTheta(1,1),sprintf('%2.1f',stdTheta(1,1)/meanTheta(1,1)*100))
+        text(s-0.5,meanTheta(25,1),sprintf('%2.1f',stdTheta(25,1)/meanTheta(25,1)*100))
+        text(s-0.5,meanTheta(91,1),sprintf('%2.1f',stdTheta(91,1)/meanTheta(91,1)*100))
+        box('on');xlabel('Data Set Number');ylabel('Theta at 0,2,7.5 h (rad)');
+        ylim([pi/10,pi*4/10]);yticks([pi/10:pi/10:pi*4/10;]);
+        xlim([0.5,10.5])
+        
+        
+        
+%     subplot(3,3,3)
+%         hold all
+%         set(gca,'ColorOrderIndex',s)
+%         plot(time,meanAb,'-','LineWidth',3); set(gca,'ColorOrderIndex',s)
+%         plot(time,meanAb+stdAb,'-','LineWidth',3);set(gca,'ColorOrderIndex',s)
+%         plot(time,meanAb-stdAb,'-','LineWidth',3)
+%         box('on');xlabel('Time (h)');ylabel('DIB Area (um^2)');
+%         ylim([0,inf]); xlim([0,7.5])
+%     subplot(3,3,3)
+%         hold all
+%         plot(squeeze(rl(1,:,:)),squeeze(rr(1,:,:)),'ob')
+%         plot(squeeze(rl(25,:,:)),squeeze(rr(25,:,:)),'or')
+%         plot(squeeze(rl(91,:,:)),squeeze(rr(91,:,:)),'ok')
+%         plot(0:1,0:1,'-g','LineWidth',3)
+%         box('on');xlabel('Rb/Rl');ylabel('Rb/Rr');
+%     subplot(3,3,6)
+%         hold all
+%         plot(squeeze(Rb(1,:,:)),squeeze(theta(1,:,:)),'ob');
+%         plot(squeeze(Rb(25,:,:)),squeeze(theta(25,:,:)),'or');
+%         plot(squeeze(Rb(91,:,:)),squeeze(theta(91,:,:)),'ok');
+%         box('on');xlabel('Rb');ylabel('theta');
+%     subplot(3,3,9)
+%         hold all
+%         plot(squeeze(d(1,:,:)),squeeze(D(1,:,:)),'ob')
+%         plot(squeeze(d(25,:,:)),squeeze(D(25,:,:)),'or')
+%         plot(squeeze(d(91,:,:)),squeeze(D(91,:,:)),'ok')
+%         plot(0:140,0:140,'-g','LineWidth',3)
+%         box('on');xlabel('d');ylabel('D');
+%     subplot(3,3,9)
+%         hold all
+%         plot(squeeze(theta(1,:,:)),squeeze(theta2(1,:,:)),'ob');
+%         plot(squeeze(theta(25,:,:)),squeeze(theta2(25,:,:)),'or');
+%         plot(squeeze(theta(91,:,:)),squeeze(theta2(91,:,:)),'ok');
+%         plot(0:180,0:180,'-g','LineWidth',3)
+%         box('on');xlabel('theta');ylabel('theta2');
+end
 %% fit cumulative pdf
 fusionTime=91;
 
