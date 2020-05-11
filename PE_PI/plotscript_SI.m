@@ -223,34 +223,51 @@ end
 %% PI DIR/ SGA, extrapolation for t=91
 % a B*=5 is a valid choice for estimating single gene PI for
 % all data sets except 100 mM full (N=9) and 1 mM ctrl1 (N=12)
-for s=3%1:length(datafiles)
+for s=1:length(datafiles)
     load(datafiles{s});
 
     fusionTime=91;
     g=EMB_data2g(data,fusionTime);
-    g=g(:,:,:,[1:12:49,91]);
+    g=g(:,:,:,91);
     [N,I,X,T]=size(g);
-    m=ceil([0.95,0.9,0.85,0.8,0.75,0.5]*N);
+    
+    if N>12
+        m=flip(unique(ceil((6:11)/12*N)));
+    else
+        m=flip(7:N);
+    end
     % number of iterations for each (bin,m)
     K=100;
-    % shuffle?
-    binNumber=2:6;
-
-    [PIdir,stdPIdir] = EMB_extrapolatePI(@EMB_g2piDIR,g,K,m,binNumber,false,true);
+    [PIdir,stdPIdir] = EMB_extrapolatePIv1(@EMB_g2piDIR,g,K,m,2:6,false,false);
     
-    [PIsga,stdPIsga] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,true);
+    [PIsga,stdPIsga] = EMB_extrapolatePIv1(@EMB_g2piSGA,g,K,m,100,false,false);
     
     figure(11)
+        subplot(1,4,4)
         hold all
+        set(gca,'ColorOrderIndex',1)
         for p=1:3
             errorbar(PIsga(p,:),PIdir(p,:),...
                 stdPIdir(p,:),stdPIdir(p,:),stdPIsga(p,:),stdPIsga(p,:),...
                 '.-','MarkerSize',20)
+            text(PIsga(p,:),PIdir(p,:),sprintf('%d',s))
         end
-        %errorbar(PIdir,PIsga,stdPIsga,'.b','MarkerSize',20)
         plot(linspace(0,1.2),linspace(0,1.2),'--k')
         box('on'); xlim([-0.1,1.3]);ylim([-0.1,1.3]);
         xlabel('I_{SGA}');ylabel('I_{DIR}')
+        legend('g1','g2','joint')
+        
+        subplot(1,4,1:3)
+        hold all
+        
+        for p=1:3
+            set(gca,'ColorOrderIndex',p)
+            errorbar(s-0.1,PIsga(p,:),stdPIsga(p,:),'.-','MarkerSize',20)
+            set(gca,'ColorOrderIndex',p)
+            errorbar(s+0.1,PIdir(p,:),stdPIdir(p,:),'.-','MarkerSize',20)
+        end
+        box('on'); xlim([0.5,10.5]);ylim([-0.1,1.3]);
+        xlabel('Data set number');ylabel('I-DIR, I-SGA')
         legend('g1','g2','joint')
 end
 
@@ -266,14 +283,16 @@ for s=3%1:length(datafiles)
     g=EMB_data2g(data,fusionTime);
     [N,I,X,T]=size(g);
     
-    m=ceil([0.95,0.9,0.85,0.8,0.75,0.5]*N);
+    if N>12
+        m=flip(unique(ceil((6:11)/12*N)));
+    else
+        m=flip(7:N);
+    end
     % number of iterations for each (bin,m)
     K=100;
-    binNumber=2:6;
-
-    [PIdir,stdPIdir] = EMB_extrapolatePI(@EMB_g2piDIR,g,K,m,binNumber,false,false);
+    [PIdir,stdPIdir] = EMB_extrapolatePIv1(@EMB_g2piDIR,g,K,m,2:6,false,false);
     
-    [PIsga,stdPIsga] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,false);
+    [PIsga,stdPIsga] = EMB_extrapolatePIv1(@EMB_g2piSGA,g,K,m,100,false,false);
     
     figure(11)
         subplot(1,2,1)
@@ -281,7 +300,7 @@ for s=3%1:length(datafiles)
             plot(time, PIdir, '-');set(gca,'ColorOrderIndex',1)
             plot(time, PIdir+stdPIdir, '--');set(gca,'ColorOrderIndex',1)
             plot(time, PIdir-stdPIdir, '--');
-            box('on'); xlim([0,7.5]);ylim([0,1.2]);
+            box('on'); xlim([0,7.5]);ylim([-0.1,1.2]);
             xlabel('Time (h)');ylabel('I_{DIR}')
             legend('g1','g2','joint')
             xticks([0:2.5:7.5]);
@@ -291,7 +310,7 @@ for s=3%1:length(datafiles)
             plot(time, PIsga, '-');set(gca,'ColorOrderIndex',1)
             plot(time, PIsga+stdPIsga, '--');set(gca,'ColorOrderIndex',1)
             plot(time, PIsga-stdPIsga, '--');
-            box('on'); xlim([0,7.5]);ylim([0,1.2]);
+            box('on'); xlim([0,7.5]);ylim([-0.1,1.2]);
             xlabel('Time (h)');ylabel('I_{SGA}')
             legend('g1','g2','joint');xticks([0:2.5:7.5]);
 end
