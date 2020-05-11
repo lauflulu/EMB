@@ -34,7 +34,7 @@ end
 PI=zeros(P,T);
 stdPI=zeros(P,T);
 
-conf=0.55;
+conf=0.6827;
 
 x=1./m';
 if plotON
@@ -53,28 +53,27 @@ for p=1:P
         
         if B>1
             for b=1:B
-                [fM,~] = fit(x,meanI(:,b),'poly1');
+                [fM,gofM] = fit(x,meanI(:,b),'poly1');
                 fMs{b,1}=fM;
                 meanI0(b,1)=fM(0);
                 ci=confint(fM,conf);
-                
-                stdI0(b,1) = (ci(2,2)-fM(0))/tinv(conf,length(x)-2)*length(x)^0.5;
+                gofM.sse
+                stdI0(b,1) = (ci(2,2)-fM(0))/tinv((1-(1-conf)/2),gofM.dfe);
             end
-            [fB,~] = fit(y,meanI0,'poly1');
+            [fB,gofB] = fit(y,meanI0,'poly1');
             PI(p,t)=fB(0);
             
             ci=confint(fB,conf);
-            stdPI(p,t) = (ci(2,2)-fB(0))/tinv(conf,length(y)-2)*length(y)^0.5;
+            stdPI(p,t) = (ci(2,2)-fB(0))/tinv((1-(1-conf)/2),gofB.dfe);
             
         else
-            [fM,~] = fit(x,meanI','poly1');
+            [fM,gofM] = fit(x,meanI','poly1');
             fMs{1,1}=fM;
             
             ci=confint(fM,conf);
-            
-            
+            gofM.sse
             PI(p,t)=fM(0);
-            stdPI(p,t) = (ci(2,2)-fM(0))/tinv(conf,length(x)-2)*length(x)^0.5;
+            stdPI(p,t) = (ci(2,2)-fM(0))/tinv((1-(1-conf)/2),gofM.dfe);
         end
         
     end

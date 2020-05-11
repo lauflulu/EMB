@@ -1,6 +1,5 @@
-function [PI,stdPI] = EMB_extrapolatePIv4(fun,g,K,m,binNumber,shuffle,plotON)
-%EMB_EXTRAPOLATEPI Summary of this function goes here
-%   Detailed explanation goes here
+function [PI,stdPI] = EMB_extrapolatePIv2(fun,g,K,m,binNumber,shuffle,plotON)
+%EMB_EXTRAPOLATEPI error bar is SD of MI estimate of smalles subsample
 M=size(m,2);
 B=size(binNumber,2);
 [N,I,X,T]=size(g);
@@ -32,7 +31,7 @@ end
 PI=zeros(P,T);
 stdPI=zeros(P,T);
 
-conf=0.55;
+conf=0.68;
 
 x=1./m';
 if plotON
@@ -44,28 +43,33 @@ for p=1:P
     meanI0=zeros(size(y));
     stdI0=zeros(size(y));
     for t=1:T
+        
         meanI=squeeze(mean(pi(:,:,:,p,t),1));
         stdI=squeeze(std(pi(:,:,:,p,t),[],1));
         fMs=cell(B,1);
+        
         if B>1
             for b=1:B
-                fM = LinearModel.fit(x,meanI(:,b));
-                fMs{b,1}=fM.Fitted;
-                meanI0(b,1)=fM.Coefficients.Estimate(1,1);
-                stdI0(b,1) = fM.Coefficients.SE(1,1);
+                [fM,gofM] = fit(x,meanI(:,b),'poly1');
+                fMs{b,1}=fM;
+                meanI0(b,1)=fM(0);
+                stdI0(b,1) = max(stdI(:,b));
             end
-            fB = LinearModel.fit(y,meanI0);
-            PI(p,t)=fB.Coefficients.Estimate(1,1);
-            stdPI(p,t) = fB.Coefficients.SE(1,1)*sqrt(length(y));
+            [fB,gofB] = fit(y,meanI0,'poly1');
+            PI(p,t)=fB(0);
+            stdPI(p,t) = max(stdI0);
+            
         else
-            fM = LinearModel.fit(x,meanI');
-            fMs{1,1}=fM.Fitted;
-            PI(p,t)=fM.Coefficients.Estimate(1,1);
-            stdPI(p,t) = fM.Coefficients.SE(1,1)*sqrt(length(x));
+            [fM,gofM] = fit(x,meanI','poly1');
+            fMs{1,1}=fM;
+            PI(p,t)=fM(0);
+            stdPI(p,t) = max(stdI);
         end
+        
     end
     %plots
     if plotON
+        
         if B>1
             subplot(P,2,2*p-1)
                 hold all
@@ -89,7 +93,7 @@ for p=1:P
         else
                 hold all
                 errorbar(x,meanI,stdI,'--.','MarkerSize',20)
-                plot(x,fMs{1,1},'-k')
+                plot([0;x],fMs{1,1}([0;x]),'-k')
                 errorbar(zeros(B,1),PI(p,t),stdPI(p,t),'.r','MarkerSize',20)
                 xlabel('1/M'); ylabel('PI naive');
                 limx=max(x);
