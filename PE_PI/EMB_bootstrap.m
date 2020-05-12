@@ -4,7 +4,7 @@ function [f,meanF,stdF] = EMB_bootstrap(fun,g,B)
 f=zeros([B,size(fun(g))]);
 
 for b=1:B
-    draw=randi(N,N,1);
+    draw=randsample(N,N,true); %true/false=w/wo replacement
     boot=g(draw,:,:,:);
 	S.subs =  repmat({':'},1,ndims(f)); % the third row
     S.subs{1} = b;

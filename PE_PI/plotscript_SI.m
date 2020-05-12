@@ -315,20 +315,27 @@ for s=3%1:length(datafiles)
             legend('g1','g2','joint');xticks([0:2.5:7.5]);
 end
 %% PE
-time=0:12:90; time=time*5/60;
+time=[0,6,12,24,90]; 
 load(datafiles{3});
 fusionTime=91;
 g=EMB_data2g(data,fusionTime);
-g=g(:,:,:,1:12:91);
+g=g(:,:,:,time+1);
+time=time*5/60;
 [N,I,X,T]=size(g);
-m=ceil([0.95,0.9,0.85,0.8,0.75,0.7,0.6,0.5]*N);
 
-[meanPE,stdPE] = EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,true);
-%[PE,meanPE,stdPE] = EMB_bootstrap(@(g)EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,false),g,10);
+if N>12
+    m=flip(unique(ceil((6:11)/12*N)));
+else
+    m=flip(7:N);
+end
+tic
+%[meanPE,stdPE] = EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,true);
+[PE,meanPE,stdPE] = EMB_bootstrap(@(g)EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,false),g,500);
+toc
 %[PE,meanPE,stdPE] = EMB_bootstrap(@EMB_g2gaussPE,g,1000);
-[Pcorr,lb,ub]=EMB_PE2Pcorr(meanPE,stdPE);
+[Pcorr,stdPcorr]=EMB_PE2Pcorr(meanPE,stdPE);
 
-T=5;
+
 meanG=EMB_g2meanG(g);
 meanY=squeeze(meanG(1,1,:,T));
 meanR=squeeze(meanG(1,2,:,T));
@@ -372,23 +379,33 @@ figure(5)
         
     subplot(2,3,3)
         hold all
-        plot(1:5,Pcorr(1,:,T),'-.b','MarkerSize',20)
-        plot(1:5,Pcorr(2,:,T),'-.r','MarkerSize',20)
-        plot(1:5,Pcorr(3,:,T),'-.k','MarkerSize',20)
-        plot(1:5,lb(1,:,T),'--b')
-        plot(1:5,lb(2,:,T),'--r')
-        plot(1:5,lb(3,:,T),'--k')
-        plot(1:5,ub(1,:,T),'--b')
-        plot(1:5,ub(2,:,T),'--r')
-        plot(1:5,ub(3,:,T),'--k')
+        plot(1:5,Pcorr(1,:,T),'.-b','MarkerSize',20)
+        plot(1:5,Pcorr(2,:,T),'.-r','MarkerSize',20)
+        plot(1:5,Pcorr(3,:,T),'.-k','MarkerSize',20)
+        plot(1:5,Pcorr(1,:,T)+stdPcorr(1,:,T),'--b')
+        plot(1:5,Pcorr(2,:,T)+stdPcorr(2,:,T),'--r')
+        plot(1:5,Pcorr(3,:,T)+stdPcorr(3,:,T),'--k')
+        plot(1:5,Pcorr(1,:,T)-stdPcorr(1,:,T),'--b')
+        plot(1:5,Pcorr(2,:,T)-stdPcorr(2,:,T),'--r')
+        plot(1:5,Pcorr(3,:,T)-stdPcorr(3,:,T),'--k')
         xlim([0.5,5.5]);ylim([0,1]);box('on');
         xlabel('Droplet')
         ylabel('P_{corr}')
     
     for p=1:3
         subplot(2,3,3+p)
-            plot(time,squeeze(Pcorr(p,:,:)))
-            xlim([0,7.5]);xticks(0:2.5:7.5);
+            hold all
+            for t=1:T
+                color=[0,0,0];
+                color(p)=t/T;
+                plot(1:5,squeeze(Pcorr(p,:,t))','.-',...
+                    'Color',color,'LineWidth',1,'MarkerSize',20)
+                plot(1:5,squeeze(Pcorr(p,:,t)+stdPcorr(p,:,t))','--',...
+                    'Color',color,'LineWidth',1)
+                plot(1:5,squeeze(Pcorr(p,:,t)-stdPcorr(p,:,t))','--',...
+                    'Color',color,'LineWidth',1)
+            end
+            xlim([0.5,5.5]);
             box('on'); ylim([0,1]);
             xlabel('Time (h)')
             ylabel('P_{corr}')
