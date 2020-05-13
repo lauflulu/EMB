@@ -10,8 +10,8 @@ l = 150.3e-6; % m, average length of compartments
 V = 1e-12; % m3 average volume of compartments, 1 nL
 
 %initialization
-for ispecies=1:1:nspecies;
-    for icomp=1:1:ncompartment;
+for ispecies=1:1:nspecies
+    for icomp=1:1:ncompartment
         x(ispecies, icomp)=0;
     end
 end

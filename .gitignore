@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # Matlab temporary files
-.asv
+*.asv
 
 # C extensions
 *.so
