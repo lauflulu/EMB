@@ -1,19 +1,17 @@
-function [Perr,lbPerr,ubPerr] = EMB_PE2Pcorr(meanPE,stdPE)
+function [Pcorr,stdPcorr] = EMB_PE2Pcorr(meanPE,stdPE)
 %EMB_PE2PERR Summary of this function goes here
 %   Detailed explanation goes here
 [P,X,T]=size(meanPE);
 
-Perr=zeros(P,X,T);
-lbPerr=zeros(P,X,T);
-ubPerr=zeros(P,X,T);
-d=0.001;
-D=0:d:1;
+Pcorr=zeros(P,X,T);
+stdPcorr=zeros(P,X,T);
+
 for p=1:P
     for x=1:X
         for t=1:T
-            Perr(p,x,t)=1-sum(normpdf(D,0.5,meanPE(p,x,t)))*d;
-            lbPerr(p,x,t)=1-sum(normpdf(D,0.5,meanPE(p,x,t)-stdPE(p,x,t)))*d;
-            ubPerr(p,x,t)=1-sum(normpdf(D,0.5,meanPE(p,x,t)+stdPE(p,x,t)))*d;
+            % analytical solutions (wolfram alpha)
+            Pcorr(p,x,t)=erf(0.353553/meanPE(p,x,t));
+            stdPcorr(p,x,t)= abs(0.398942*exp(-1/8./meanPE(p,x,t)^2)./meanPE(p,x,t)^2)*stdPE(p,x,t);
         end
     end
 end

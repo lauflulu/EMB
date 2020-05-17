@@ -170,34 +170,46 @@ figure(14)
 % a B*=5 is a valid choice for estimating single gene PI for
 % all data sets except 100 mM full (N=9) and 1 mM ctrl1 (N=12)
 Bstar=zeros(10,3);
-for sample=1:length(datafiles)
-load(datafiles{sample});
 
-fusionTime=91;
-g=EMB_data2g(data,fusionTime);
-g=g(:,:,:,91);
-[N,I,X,T]=size(g);
-m=ceil([0.95,0.9,0.85,0.8,0.75,0.5]*N);
-% number of iterations for each (bin,m)
-K=100;
-tol=0.1;
-binNumber=2:20;
-B=length(binNumber);
-PIb=zeros(B-2,3);
-stdPIb=zeros(B-2,3);
+S=length(datafiles);
+PI=cell(S,1);
+stdPI=cell(S,1);
 
-for i=3:B
-    [PIb(i-2,:),stdPIb(i-2,:)] = EMB_extrapolatePI(@EMB_g2piDIR,g,K,m,binNumber(1:i),true,false);
-    i
-end
-figure(3)
-    subplot(5,2,sample)
-    hold all
-    errorbar(binNumber(3:B)'*ones(1,3),PIb,stdPIb,'--o')
-    plot(binNumber,zeros(1,B),'--k')
-    plot(binNumber,0.1*ones(1,B),'--k')
-    ylim([-0.1,1.7]); box('on'); xlim([0,21]);
-    xlabel('B*');ylabel('PI (bits)');
+for s=3%1:length(datafiles)
+    s
+    
+    load(datafiles{s});
+
+    fusionTime=91;
+    g=EMB_data2g(data,fusionTime);
+    g=g(:,:,:,91);
+    [N,I,X,T]=size(g);
+    
+    if N>12
+        m=flip(unique(ceil((6:11)/12*N)));
+    else
+        m=flip(7:N);
+    end
+    
+    K=100;
+    tol=0.1;
+    binNumber=2:20;
+    B=length(binNumber);
+    PIb=zeros(B-2,3);
+    stdPIb=zeros(B-2,3);
+
+    for i=3:B
+        [PIb(i-2,:),stdPIb(i-2,:)] = EMB_extrapolatePIv1(@EMB_g2piDIR,g,K,m,binNumber(1:i),false,false);
+    end
+    PI{s,1}=PIb; stdPI{s,1}=stdPIb;
+    figure(3)
+        subplot(5,2,s)
+        hold all
+        errorbar(binNumber(3:B)'*ones(1,3),PI{s,1},stdPI{s,1},'--o')
+        plot(binNumber,zeros(1,B),'--k')
+        plot(binNumber,0.1*ones(1,B),'--k')
+        ylim([-0.1,1.7]); box('on'); xlim([0,21]);
+        xlabel('B*');ylabel('PI (bits)');
     
       
 bb=binNumber(3:B)'*ones(1,3);
@@ -206,39 +218,56 @@ Bmax(Bmax==0)=nan;
 Bmax=min(Bmax,[],1)-1;
 Bmax(isnan(Bmax))=21;
 Bmax(Bmax==3)=nan;
-Bstar(sample,:)=Bmax;
+Bstar(s,:)=Bmax;
 end
 %% PI DIR/ SGA, extrapolation for t=91
 % a B*=5 is a valid choice for estimating single gene PI for
 % all data sets except 100 mM full (N=9) and 1 mM ctrl1 (N=12)
-for sample=3%1:length(datafiles)
-    load(datafiles{sample});
+for s=1:length(datafiles)
+    load(datafiles{s});
 
     fusionTime=91;
     g=EMB_data2g(data,fusionTime);
-    g=g(:,:,:,[1:12:49,91]);
+    g=g(:,:,:,91);
     [N,I,X,T]=size(g);
-    m=ceil([0.95,0.9,0.85,0.8,0.75,0.5]*N);
+    
+    if N>12
+        m=flip(unique(ceil((6:11)/12*N)));
+    else
+        m=flip(7:N);
+    end
     % number of iterations for each (bin,m)
     K=100;
-    % shuffle?
-    binNumber=2:6;
-
-    [PIdir,stdPIdir] = EMB_extrapolatePI(@EMB_g2piDIR,g,K,m,binNumber,false,true);
+    [PIdir,stdPIdir] = EMB_extrapolatePIv1(@EMB_g2piDIR,g,K,m,2:6,false,false);
     
-    [PIsga,stdPIsga] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,true);
+    [PIsga,stdPIsga] = EMB_extrapolatePIv1(@EMB_g2piSGA,g,K,m,100,false,false);
     
     figure(11)
+        subplot(1,4,4)
         hold all
+        set(gca,'ColorOrderIndex',1)
         for p=1:3
             errorbar(PIsga(p,:),PIdir(p,:),...
                 stdPIdir(p,:),stdPIdir(p,:),stdPIsga(p,:),stdPIsga(p,:),...
                 '.-','MarkerSize',20)
+            text(PIsga(p,:),PIdir(p,:),sprintf('%d',s))
         end
-        %errorbar(PIdir,PIsga,stdPIsga,'.b','MarkerSize',20)
         plot(linspace(0,1.2),linspace(0,1.2),'--k')
         box('on'); xlim([-0.1,1.3]);ylim([-0.1,1.3]);
         xlabel('I_{SGA}');ylabel('I_{DIR}')
+        legend('g1','g2','joint')
+        
+        subplot(1,4,1:3)
+        hold all
+        
+        for p=1:3
+            set(gca,'ColorOrderIndex',p)
+            errorbar(s-0.1,PIsga(p,:),stdPIsga(p,:),'.-','MarkerSize',20)
+            set(gca,'ColorOrderIndex',p)
+            errorbar(s+0.1,PIdir(p,:),stdPIdir(p,:),'.-','MarkerSize',20)
+        end
+        box('on'); xlim([0.5,10.5]);ylim([-0.1,1.3]);
+        xlabel('Data set number');ylabel('I-DIR, I-SGA')
         legend('g1','g2','joint')
 end
 
@@ -247,21 +276,23 @@ end
 % all data sets except 100 mM full (N=9) and 1 mM ctrl1 (N=12)
 time=0:90; time=time*5/60;
 
-for sample=3%1:length(datafiles)
-    load(datafiles{sample});
+for s=3%1:length(datafiles)
+    load(datafiles{s});
 
     fusionTime=91;
     g=EMB_data2g(data,fusionTime);
     [N,I,X,T]=size(g);
     
-    m=ceil([0.95,0.9,0.85,0.8,0.75,0.5]*N);
+    if N>12
+        m=flip(unique(ceil((6:11)/12*N)));
+    else
+        m=flip(7:N);
+    end
     % number of iterations for each (bin,m)
     K=100;
-    binNumber=2:6;
-
-    [PIdir,stdPIdir] = EMB_extrapolatePI(@EMB_g2piDIR,g,K,m,binNumber,false,false);
+    [PIdir,stdPIdir] = EMB_extrapolatePIv1(@EMB_g2piDIR,g,K,m,2:6,false,false);
     
-    [PIsga,stdPIsga] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,false);
+    [PIsga,stdPIsga] = EMB_extrapolatePIv1(@EMB_g2piSGA,g,K,m,100,false,false);
     
     figure(11)
         subplot(1,2,1)
@@ -269,7 +300,7 @@ for sample=3%1:length(datafiles)
             plot(time, PIdir, '-');set(gca,'ColorOrderIndex',1)
             plot(time, PIdir+stdPIdir, '--');set(gca,'ColorOrderIndex',1)
             plot(time, PIdir-stdPIdir, '--');
-            box('on'); xlim([0,7.5]);ylim([0,1.2]);
+            box('on'); xlim([0,7.5]);ylim([-0.1,1.2]);
             xlabel('Time (h)');ylabel('I_{DIR}')
             legend('g1','g2','joint')
             xticks([0:2.5:7.5]);
@@ -279,25 +310,32 @@ for sample=3%1:length(datafiles)
             plot(time, PIsga, '-');set(gca,'ColorOrderIndex',1)
             plot(time, PIsga+stdPIsga, '--');set(gca,'ColorOrderIndex',1)
             plot(time, PIsga-stdPIsga, '--');
-            box('on'); xlim([0,7.5]);ylim([0,1.2]);
+            box('on'); xlim([0,7.5]);ylim([-0.1,1.2]);
             xlabel('Time (h)');ylabel('I_{SGA}')
             legend('g1','g2','joint');xticks([0:2.5:7.5]);
 end
 %% PE
-time=0:12:90; time=time*5/60;
+time=[0,6,12,24,90]; 
 load(datafiles{3});
 fusionTime=91;
 g=EMB_data2g(data,fusionTime);
-g=g(:,:,:,1:12:91);
+g=g(:,:,:,time+1);
+time=time*5/60;
 [N,I,X,T]=size(g);
-m=ceil([0.95,0.9,0.85,0.8,0.75,0.7,0.6,0.5]*N);
 
-[meanPE,stdPE] = EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,true);
-%[PE,meanPE,stdPE] = EMB_bootstrap(@(g)EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,false),g,10);
+if N>12
+    m=flip(unique(ceil((6:11)/12*N)));
+else
+    m=flip(7:N);
+end
+tic
+%[meanPE,stdPE] = EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,true);
+[PE,meanPE,stdPE] = EMB_bootstrap(@(g)EMB_extrapolatePE(@EMB_g2gaussPE,g,100,m,false),g,500);
+toc
 %[PE,meanPE,stdPE] = EMB_bootstrap(@EMB_g2gaussPE,g,1000);
-[Pcorr,lb,ub]=EMB_PE2Pcorr(meanPE,stdPE);
+[Pcorr,stdPcorr]=EMB_PE2Pcorr(meanPE,stdPE);
 
-T=5;
+
 meanG=EMB_g2meanG(g);
 meanY=squeeze(meanG(1,1,:,T));
 meanR=squeeze(meanG(1,2,:,T));
@@ -341,23 +379,33 @@ figure(5)
         
     subplot(2,3,3)
         hold all
-        plot(1:5,Pcorr(1,:,T),'-.b','MarkerSize',20)
-        plot(1:5,Pcorr(2,:,T),'-.r','MarkerSize',20)
-        plot(1:5,Pcorr(3,:,T),'-.k','MarkerSize',20)
-        plot(1:5,lb(1,:,T),'--b')
-        plot(1:5,lb(2,:,T),'--r')
-        plot(1:5,lb(3,:,T),'--k')
-        plot(1:5,ub(1,:,T),'--b')
-        plot(1:5,ub(2,:,T),'--r')
-        plot(1:5,ub(3,:,T),'--k')
+        plot(1:5,Pcorr(1,:,T),'.-b','MarkerSize',20)
+        plot(1:5,Pcorr(2,:,T),'.-r','MarkerSize',20)
+        plot(1:5,Pcorr(3,:,T),'.-k','MarkerSize',20)
+        plot(1:5,Pcorr(1,:,T)+stdPcorr(1,:,T),'--b')
+        plot(1:5,Pcorr(2,:,T)+stdPcorr(2,:,T),'--r')
+        plot(1:5,Pcorr(3,:,T)+stdPcorr(3,:,T),'--k')
+        plot(1:5,Pcorr(1,:,T)-stdPcorr(1,:,T),'--b')
+        plot(1:5,Pcorr(2,:,T)-stdPcorr(2,:,T),'--r')
+        plot(1:5,Pcorr(3,:,T)-stdPcorr(3,:,T),'--k')
         xlim([0.5,5.5]);ylim([0,1]);box('on');
         xlabel('Droplet')
         ylabel('P_{corr}')
     
     for p=1:3
         subplot(2,3,3+p)
-            plot(time,squeeze(Pcorr(p,:,:)))
-            xlim([0,7.5]);xticks(0:2.5:7.5);
+            hold all
+            for t=1:T
+                color=[0,0,0];
+                color(p)=t/T;
+                plot(1:5,squeeze(Pcorr(p,:,t))','.-',...
+                    'Color',color,'LineWidth',1,'MarkerSize',20)
+                plot(1:5,squeeze(Pcorr(p,:,t)+stdPcorr(p,:,t))','--',...
+                    'Color',color,'LineWidth',1)
+                plot(1:5,squeeze(Pcorr(p,:,t)-stdPcorr(p,:,t))','--',...
+                    'Color',color,'LineWidth',1)
+            end
+            xlim([0.5,5.5]);
             box('on'); ylim([0,1]);
             xlabel('Time (h)')
             ylabel('P_{corr}')

@@ -1,6 +1,5 @@
-function [PI,stdPI] = EMB_extrapolatePIv6(fun,g,K,m,binNumber,shuffle,plotON)
-%EMB_EXTRAPOLATEPI Summary of this function goes here
-%   Detailed explanation goes here
+function [PI,stdPI] = EMB_extrapolatePIv1(fun,g,K,m,binNumber,shuffle,plotON)
+%EMB_EXTRAPOLATEPI errorbars are t-corrected 68% confidence intervals
 M=size(m,2);
 B=size(binNumber,2);
 [N,I,X,T]=size(g);
@@ -34,7 +33,7 @@ end
 % extrapolate PI
 PI=zeros(P,T);
 stdPI=zeros(P,T);
-
+conf=0.6827;
 x=1./m';
 if plotON
     figure
@@ -51,21 +50,23 @@ for p=1:P
         fMs=cell(B,1);
         
         if B>1
-            for b=1:B
-                [fM,~] = fit(x,meanI(:,b),'poly1');
-                fMs{b,1}=fM;
-                meanI0(b,1)=fM(0);
-
-                stdI0(b,1) = sum(stdI(:,b).^(-2))^(-0.5)*length(x)^0.5;
-            end
+        for b=1:B
+            [fM,~] = fit(x,meanI(:,b),'poly1');
+            fMs{b,1}=fM;
+            meanI0(b,1)=fM(0);
+            ci=confint(fM,conf);
+            stdI0(b,1) = ci(2,2)-fM(0);
+        end
             [fB,~] = fit(y,meanI0,'poly1');
             PI(p,t)=fB(0);
-            stdPI(p,t) = sum(stdI0(:,1).^(-2))^(-0.5)*length(y)^0.5;
+            ci=confint(fB,conf);
+            stdPI(p,t) = ci(2,2)-fB(0);
         else
             [fM,~] = fit(x,meanI','poly1');
             fMs{1,1}=fM;
+            ci=confint(fM,conf);
             PI(p,t)=fM(0);
-            stdPI(p,t) = sum(stdI.^(-2))^(-0.5)*length(x)^0.5;
+            stdPI(p,t) = ci(2,2)-fM(0);
         end
         
     end

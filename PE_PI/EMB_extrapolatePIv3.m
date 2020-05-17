@@ -1,6 +1,5 @@
 function [PI,stdPI] = EMB_extrapolatePIv3(fun,g,K,m,binNumber,shuffle,plotON)
-%EMB_EXTRAPOLATEPI Summary of this function goes here
-%   Detailed explanation goes here
+%EMB_EXTRAPOLATEPI error bars are SD of K individual fits
 M=size(m,2);
 B=size(binNumber,2);
 [N,I,X,T]=size(g);
@@ -81,11 +80,17 @@ for p=1:P
         if B>1
             subplot(P,2,2*p-1)
                 hold all
-                for k=1:K
-                    for b=1:B
-                        plot(x,squeeze(pi(k,:,:,p,t))','.','MarkerSize',20)
-                        plot([0;x],fMs{b,k}([0;x]),'-k')
+                for b=1:B
+                    line=zeros(K,length(x)+1);
+                    for k=1:K
+                        hl=plot([0;x],fMs{b,k}([0;x]),'-k');
+                        hl.Color(4) = 0.2;
+                        line(k,:)=fMs{b,k}([0;x]);
                     end
+                    set(gca,'ColorOrderIndex',b)
+                    plot([0;min(x)],mean(line(:,1:2),1),'--','LineWidth',2); set(gca,'ColorOrderIndex',b)
+                    plot(x,mean(line(:,2:end),1),'-','LineWidth',2); set(gca,'ColorOrderIndex',b)
+                    errorbar(x,squeeze(mean(pi(:,:,b,p,t),1)),squeeze(std(pi(:,:,b,p,t),[],1)),'.','MarkerSize',20)
                 end
                 errorbar(zeros(B,1),mean(piB,2),std(piB,[],2),'.r','MarkerSize',20)
                 xlabel('1/m'); ylabel('PI naive')
@@ -94,11 +99,18 @@ for p=1:P
         
             subplot(P,2,2)
                 hold all
-                errorbar(0,PI(p,t),stdPI(p,t),'.b','MarkerSize',20);
+                line=zeros(K,length(y)+1);
                 for k=1:K
-                    plot(y,piB(:,k),'.','MarkerSize',20)
-                    plot([0;y],fBs{1,k}([0;y]),'-k')
+                    hl=plot([0;y],fBs{1,k}([0;y]),'-k');
+                    hl.Color(4) = 0.2;
+                    line(k,:)=fBs{1,k}([0;y]);
                 end
+                set(gca,'ColorOrderIndex',p)
+                plot([0;min(y)],mean(line(:,1:2),1),'--','LineWidth',2);set(gca,'ColorOrderIndex',p)
+                plot(y,mean(line(:,2:end),1),'-','LineWidth',2);set(gca,'ColorOrderIndex',p)
+                errorbar(y,mean(piB,2),std(piB,[],2),'.','MarkerSize',20)
+                
+                errorbar(0,PI(p,t),stdPI(p,t),'.b','MarkerSize',20)
                 xlabel('1/B^{D+1}'); ylabel('PI naive')
                 limx=max(1./binNumber.^(2)');
                 box('on');xlim([-0.05*limx,1.05*limx])
