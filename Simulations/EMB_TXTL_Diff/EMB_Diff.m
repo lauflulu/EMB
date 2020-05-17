@@ -2,12 +2,12 @@ function [t,outcome]= EMB_Diff(a)
 
 global  nspecies ncompartment D P A l V 
 nspecies = 1; % IPTG
-ncompartment = a; % 1 sender 5 receivers
-D = 7.44e-10*60; % m2/min, free diffusion of IPTG
-P = 1.67e-9*60; % m/min, for IPTG, determined from droplet fitting
-A = 2e-8; % m2, for unspecific diffusion
-l = 150.3e-6; % m, average length of compartments
-V = 1e-12; % m3 average volume of compartments, 1 nL
+ncompartment = 6; % 1 sender 5 receivers
+D = 7.44e-10*60*1e12; % um2/min, free diffusion of IPTG
+P = 1.3531; % um/min, for IPTG, determined from droplet fitting
+A = 8600; % um2, for unspecific diffusion
+l = 68.83; % um, average length of compartments
+V = 1.2e6; % um3 average volume of compartments, 1.2 nL
 
 %initialization
 for ispecies=1:1:nspecies;
@@ -17,7 +17,7 @@ for ispecies=1:1:nspecies;
 end
 
 %initial values < > 0
-x(1,1)=0.01; %M, IPTG sender
+x(1,1)=a*1e6; %uM, IPTG sender
 
 % create vector for odesolver
 icount=0;

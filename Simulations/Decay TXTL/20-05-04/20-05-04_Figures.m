@@ -2,7 +2,7 @@
 
 %% Figure 1: Trying all 3 topologies with a kdeg = 1 nM/min
 
-IPTG_th=[0,logspace(-1, 4);
+IPTG_th=[0,logspace(-1, 4)];
     
  i=1:51;
     [t,outcome1]=EMB_1_circuit_decay(IPTG_th(i));
