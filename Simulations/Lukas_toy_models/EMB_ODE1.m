@@ -1,10 +1,10 @@
-function ydot = EMB_ODE1(t, y, I, X, A, V, P, alpha, kHill, k, tmat, deg)
+function ydot = EMB_ODE1(t, y, I, X, A, V, P, alphamax, alpha, kHill, k, tmat, deg)
 %% re-k
-
-alphamax=alpha(1); aLacI=alpha(2); aRFP=alpha(3); aTetR=alpha(4); aYFP=alpha(5); tau=alpha(6); tRNA=alpha(7);
+aLacI=alpha(1); aRFP=alpha(2); aTetR=alpha(3); 
+aYFP=alpha(4); tau=alpha(5); tRNA=alpha(6); a0=alpha(7);
 KdTetR=kHill(1); nTetR=kHill(2); KdLacI=kHill(3); nLacI=kHill(4);
 kon=k(1); koff=k(2);
-tmat1=tmat(1);tmat2=tmat(2);
+tmat1=tmat(1); tmat2=tmat(2);
 kdeg=deg(1); Kdeg=deg(2);
 
 %% reshape y
@@ -21,10 +21,10 @@ dg(1,X)=-P/V(1,X)*A(1,X-1)*(g(1,X)-g(1,X-1));
 %% reactions 
 for x=2:X
     %% gene expression
-    dg(2,x)=dg(2,x)+alphamax*aLacI*(1-exp(-t/tRNA))*(1./(1+(g(6,x)./KdTetR).^nTetR))*EMB_decay_v1(t,tau);% lacI
-    dg(4,x)=dg(4,x)+alphamax*aRFP*(1-exp(-t/tRNA))*(1./(1+(g(6,x)./KdTetR).^nTetR))*EMB_decay_v1(t,tau);% RFP
-    dg(6,x)=dg(6,x)+alphamax*aTetR*(1-exp(-t/tRNA))*(1./(1+(g(2,x)./KdLacI).^nLacI))*EMB_decay_v1(t,tau);% tetR
-    dg(7,x)=dg(7,x)+alphamax*aYFP*(1-exp(-t/tRNA))*(1./(1+(g(2,x)./KdLacI).^nLacI))*EMB_decay_v1(t,tau);% YFP
+    dg(2,x)=dg(2,x)+alphamax(1,x)*aLacI*(1-exp(-t/tRNA))*(a0+1./(1+(g(6,x)./KdTetR).^nTetR))*EMB_decay_v1(t,tau);% lacI
+    dg(4,x)=dg(4,x)+alphamax(1,x)*aRFP*(1-exp(-t/tRNA))*(a0+1./(1+(g(6,x)./KdTetR).^nTetR))*EMB_decay_v1(t,tau);% RFP
+    dg(6,x)=dg(6,x)+alphamax(1,x)*aTetR*(1-exp(-t/tRNA))*(a0+1./(1+(g(2,x)./KdLacI).^nLacI))*EMB_decay_v1(t,tau);% tetR
+    dg(7,x)=dg(7,x)+alphamax(1,x)*aYFP*(1-exp(-t/tRNA))*(a0+1./(1+(g(2,x)./KdLacI).^nLacI))*EMB_decay_v1(t,tau);% YFP
     
     %% maturation
     dg(4,x)=dg(4,x)-g(4,x)/tmat1;

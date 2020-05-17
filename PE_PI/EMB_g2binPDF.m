@@ -6,8 +6,8 @@ function [pdf, maxG] = EMB_g2binPDF(g,b)
 [N,I,X,T]=size(g);
 
 % to normalize bin edges from 0 to max(max(g)), normalized to max(mean(g))
-max_mean=max(max(mean(g,1),[],3),[],4);
-max_max=max(max(max(g,[],1),[],3),[],4);
+max_mean=max(mean(g,1),[],[3,4]);
+max_max=max(g,[],[1,3,4]);
 
 % bin number B
 B=zeros(1,I);

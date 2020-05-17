@@ -22,28 +22,27 @@ theta = 42*pi/180; % ?, interface angle
 A = EMB_V2A(V, theta);
 
 % gene expression
-alphamax = 6e-3; % uM/min expression factor, around 100pM/s and up, from Schwarz-Schilling, Aufinger
+CValpha =0.25;
+alphamax = 6e-3*(1+CValpha*randn(N,X)); % uM/min expression factor, around 100pM/s and up, from Schwarz-Schilling, Aufinger
+
 aLacI = 3*1000/1077; % rNTPs length LacI, factor of expression normalized, and plasmid ratio
 aRFP = 3*1000/693; % rNTPs length RFP
 aTetR = 1000/618; % rNTPs length TetR
 aYFP = 1000/717; % rNTPs length YFP
 tau = 90; % min, cell-extract lifetime, decay
 tmRNA = 15; % min, lifetime of RNA, from Karzbrun et al.
-alpha=[alphamax,aLacI,aRFP,aTetR,aYFP,tau,tmRNA];
-
+a0=0.1; % leak expression (fraction of max. expression)
+alpha=[aLacI,aRFP,aTetR,aYFP,tau,tmRNA,a0];
 
 % maturation
 tmat1 = 33; % min, maturation time of mScarletI, from Balleza et al. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5765880/pdf/nihms916443.pdf
 tmat2 = 12; % min, maturation time of YPet, from Balleza et al. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5765880/pdf/nihms916443.pdf
 tmat=[tmat1,tmat2];
 
-
-
-
 % Hill parameters
-KdTetR = 1.3e-1; % uM, determined from bulk fitting
-nTetR = 4.3; % Hill coefficient, TetR binding to pTetO, determined from bulk fitting
-KdLacI = 3.6e-2; % uM, LacI binding to pLacO, determined from bulk fitting
+KdTetR = 0.4;%1.3e-1; % uM, determined from bulk fitting
+nTetR = 1.3;%4.3; % Hill coefficient, TetR binding to pTetO, determined from bulk fitting
+KdLacI = 0.1;%3.6e-2; % uM, LacI binding to pLacO, determined from bulk fitting
 nLacI = 1.35; % Hill coefficient, LacI binding to pLacO, determined from bulk fitting
 kHill=[KdTetR,nTetR,KdLacI,nLacI];
 
@@ -73,7 +72,7 @@ options=odeset('AbsTol',1e-8,'RelTol',1e-4); % set tolerances
 
 tic
 for n=1:N
-    [t,y]=ode23s(@(t,y)EMB_ODE1(t, y, I, X, A(n,:), V(n,:), P, alpha, kHill, k, tmat, deg),tspan,y0,options);
+    [t,y]=ode23s(@(t,y)EMB_ODE1(t, y, I, X, A(n,:), V(n,:), P, alphamax(n,:), alpha, kHill, k, tmat, deg),tspan,y0,options);
     Y(n,:,:,:) = reshape(permute(y,[2,1]),I,X,T);
 end
 toc
@@ -89,6 +88,7 @@ stdY=squeeze(std(Y(:,8,2:6,2:end),[],1));
 stdR=squeeze(std(Y(:,5,2:6,2:end),[],1));
 
 [PIsga,perm] = EMB_g2piSGA(g,100); % without extrapolation since N=1000
+[pdf,maxG]=EMB_g2binPDF(g,1/10);
 %% plots
 
 close all

@@ -3,7 +3,7 @@ function normG = EMB_normalizeG(g)
 [N,I,X,T]=size(g);
 normG=zeros(size(g));
 for i=1:I
-    normG(:,i,:,:)=g(:,i,:,:)/max(g(:,i,:,:),[],'all');
+    normG(:,i,:,:)=g(:,i,:,:)/max(mean(g(:,i,:,:),1),[],'all');
 end
 end
 
