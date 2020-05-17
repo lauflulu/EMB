@@ -17,8 +17,8 @@ tmat2 = 12; % min, maturation time of YPet, from Balleza et al. https://www.ncbi
 t1 = 150; % min, delay before cell-extract degrades
 t2 = 170; % min, characteristic time of cell-extract degradation
 
-KdLacI = 3.6e-2; % uM, LacI binding to pLacO, determined from bulk fitting
-nLacI = 1.35; % Hill coefficient, LacI binding to pLacO, determined from bulk fitting
+KdLacI = 2.9e-2; % uM, LacI binding to pLacO, determined from bulk fitting
+nLacI = 1.5; % Hill coefficient, LacI binding to pLacO, determined from bulk fitting
 KdTetR = 1.3e-1; % uM, determined from bulk fitting
 nTetR = 4.3; % Hill coefficient, TetR binding to pTetO, determined from bulk fitting
 

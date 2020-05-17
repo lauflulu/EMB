@@ -1,26 +1,27 @@
-function [t,y_R, r]=EMB_rand_V(a,b,c)
+function [t,y_R, r]=EMB_rand_V(a,b,c,d)
 
 tic 
 
-global mu sigmarel sigma ncompartment runs x1 y1 x2 y2 outcome
+global mu sigmarel sigma ncompartment runs x1 y1 x2 y2 outcome I0
 mu = a; % mean of distribution
 sigmarel = b; % CV of distribution
 sigma = a*b; % stdev of distribution
 ncompartment = 6; % number of compartments
 runs = c.*ncompartment; % number of runs with random values
+I0 = d; % IPTG, M
 
 r = mu + sigma.*randn(runs,1); % random values within normal distribution
 
 for i=1:runs
-    if r(i) <= 0
-        while r(i) <=0
+    if r(i) <= 0.5e6
+        while r(i) <= 0.5e6
             r(i) = mu + sigma.*randn(1,1);
         end
     end
 end
 
-for i=1:c
-    [t,outcome]=EMB_Diff_circuit_decay_V(r(ncompartment*i-ncompartment+1:ncompartment*i));
+for i=1:c;
+    [t,outcome]=EMB_1_Diff_circuit_decay_V(r(ncompartment*i-ncompartment+1:ncompartment*i), I0);
     [x1,y1]=size(outcome);
     for j=1:y1
         y_R{j,1}(:,i)=outcome(:,j);

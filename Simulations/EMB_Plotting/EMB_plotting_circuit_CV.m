@@ -16,20 +16,20 @@ Color{5}=[0.725490212440491 0.882352948188782 0.847058832645416];
 subplot1 = subplot(1,3,1, 'FontSize',14); hold on; axis square;
 
 box(subplot1,'on');
-xlabel('Time (min)');xlim(subplot1,[0 500]);ylabel('CV IPTG');
+xlabel('Time (h)');xlim(subplot1,[0 8]);ylabel('CV IPTG');
 
 for i=2:ncomp;
-    plot(t, y_R{nspecies.*i-7,3}(:,1)./y_R{nspecies.*i-7,2}(:,1), 'LineWidth', 1, 'Color', Color{i-1});
+    plot(t./60, y_R{nspecies.*i-7,3}(:,1)./y_R{nspecies.*i-7,2}(:,1), 'LineWidth', 1, 'Color', Color{i-1});
 end
 
 % YFPmat, variable 8 (topology 1, 2) or 7 (topology 3)
 subplot2 = subplot(1,3,2, 'FontSize',14); hold on; axis square;
 
 box(subplot2,'on');
-xlabel('Time (min)');xlim(subplot2,[0 500]);ylabel('CV YFP');
+xlabel('Time (h)');xlim(subplot2,[0 8]);ylabel('CV YFP');
 
 for i=2:ncomp;
-    plot(t, y_R{nspecies.*i,3}(:,1)./y_R{nspecies.*i,2}(:,1), 'LineWidth', 1, 'Color', Color{i-1});
+    plot(t./60, y_R{nspecies.*i,3}(:,1)./y_R{nspecies.*i,2}(:,1), 'LineWidth', 1, 'Color', Color{i-1});
 end
 
 
@@ -37,10 +37,10 @@ end
 subplot3 = subplot(1,3,3, 'FontSize',14); hold on; axis square;
 
 box(subplot3,'on');
-xlabel('Time (min)');xlim(subplot3,[0 500]);ylabel('CV RFP');
+xlabel('Time (h)');xlim(subplot3,[0 8]);ylabel('CV RFP');
 
 for i=2:ncomp;
-    plot(t, y_R{nspecies.*i-3,3}(:,1)./y_R{nspecies.*i-3,2}(:,1), 'LineWidth', 1, 'Color', Color{i-1});
+    plot(t./60, y_R{nspecies.*i-3,3}(:,1)./y_R{nspecies.*i-3,2}(:,1), 'LineWidth', 1, 'Color', Color{i-1});
 end
 
 

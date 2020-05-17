@@ -371,4 +371,6 @@ EMB_plotting_circuit(t, y_R);
 
 EMB_plotting_circuit_CV(t, y_R);
 
+%% Figures 5-10: same as previously but with 100 uM, 1mM and 100mM IPTG
+
 
