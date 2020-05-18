@@ -19,12 +19,12 @@ for p=1:P
     else
         pdf=nPDFg;
     end
-    pdf_gx=pdf./EMB_sum(pdf,1:I); %conditional pdf p({g_i}|x,t)
-    pdf_g=EMB_sum(pdf,I+1)./EMB_sum(pdf,1:(I+1)); %marginal pdf_g(g)
-    pdf_x=EMB_sum(pdf,1:I)./EMB_sum(pdf,1:(I+1)); % marginal pdf_x(x)
+    pdf_gx=bsxfun(@rdivide, pdf, EMB_sum(pdf,1:I)); %conditional pdf p({g_i}|x,t)
+    pdf_g=bsxfun(@rdivide,EMB_sum(pdf,I+1),EMB_sum(pdf,1:(I+1))); %marginal pdf_g(g)
+    pdf_x=bsxfun(@rdivide,EMB_sum(pdf,1:I),EMB_sum(pdf,1:(I+1))); % marginal pdf_x(x)
     
     totalS=EMB_pdf2entropy(pdf_g,keptDim);
-    noiseS=EMB_sum(EMB_pdf2entropy(pdf_gx,keptDim).*pdf_x,3);
+    noiseS=EMB_sum(bsxfun(@times,EMB_pdf2entropy(pdf_gx,keptDim),pdf_x),3);
     pi(p,:)= totalS-noiseS;
 end
 
