@@ -1,4 +1,6 @@
 %% 20-05-07 Figures
+% old Kd, old P, topology 2, all in um, min, uM, kdeg optimum, no lower
+% limit for V
 
 %% Figure 1: EMB_Diff_circuit with topology 2, noise in V
 

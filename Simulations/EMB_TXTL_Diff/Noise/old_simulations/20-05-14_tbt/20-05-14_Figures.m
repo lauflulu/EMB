@@ -1,5 +1,6 @@
 %% 20-05-14 Figures: redoing V noise sim with the new Kd and the new P
 % only 100 repeats to go quicker
+% this P was badly fitted! this can be discarded
 
 mu=1.2e-12;
 sigmarel=0.35;
