@@ -1,15 +1,17 @@
-function ydot = EMB_ODE1(t, y, I, X, A, V, P, alphamax, alpha, kHill, k, tmat, deg)
+function ydot = EMB_ODE_sensitivity(t, y, I, X, A, V, alphamax, k)
 %% re-k
-aLacI=alpha(1); aRFP=alpha(2); aTetR=alpha(3); 
-aYFP=alpha(4); tau=alpha(5); tRNA=alpha(6); a0=alpha(7);
+P=k(1);
 
-KdTetR=kHill(1); nTetR=kHill(2); KdLacI=kHill(3); nLacI=kHill(4);
+aLacI=k(2); aRFP=k(3); aTetR=k(4); 
+aYFP=k(5); tau=k(6); tRNA=k(7); a0=k(8);
 
-kon=k(1); koff=k(2);
+KdTetR=k(9); nTetR=k(10); KdLacI=k(11); nLacI=k(12);
 
-tmat1=tmat(1); tmat2=tmat(2);
+kon=k(13); koff=k(14);
 
-kdeg=deg(1); Kdeg=deg(2);
+tmat1=k(15); tmat2=k(16);
+
+kdeg=k(17); Kdeg=k(18);
 
 %% reshape y
 g=reshape(y,I,X);
