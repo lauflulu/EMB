@@ -81,7 +81,7 @@ L=11;
 PI=zeros(3,K,L);
 varyparam=zeros(K,L);
 
-for k=1
+for k=1:K
     newparams=params;
     varyparam(k,:)=logspace(log10(params(1,k)/10),log10(params(1,k)*10),L);
     for l=1:L
@@ -99,7 +99,7 @@ toc
 
 %% plots
 figure(1)
-    for k=1
+    for k=1:K
         subplot(3,6,k)
             plot(varyparam(k,:),squeeze(PI(:,k,:)))
             box('on')
