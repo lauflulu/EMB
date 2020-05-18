@@ -1,4 +1,5 @@
 %% 20-05-12 Figures
+% new Kd, old P, topology 2
 mu=1.2e-12;
 sigmarel=0.35;
 IPTG=[100e-3, 10e-3, 1e-3, 100e-6];

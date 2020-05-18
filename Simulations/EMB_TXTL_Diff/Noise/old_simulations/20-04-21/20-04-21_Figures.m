@@ -1,4 +1,5 @@
 %% 20-04-21 Figures
+%old Kd, old P, topology 1, all in m, min, M, kdeg not optimum
 
 %% 20-04-21 Figure 1
 mu=1.2e-12;

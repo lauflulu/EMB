@@ -9,7 +9,7 @@ nspecies = 8; % IPTG, free LacI, IPTG-LacI, RFP, RFPmat, TetR, YFP, YFPmat
 ncompartment = 6; % 1 sender 5 receivers
 
 D = 7.44e-10*60*1e12; % um2/min, free diffusion of IPTG
-P = 1.67e-9*60*1e6; % um/min, for IPTG, determined from droplet fitting
+P = 1.3531; % um/min, for IPTG, determined from droplet fitting
 
 for i=1:ncompartment;
     V(i)=a(i)*1e18;% um3 average volume of compartments, 1 nL

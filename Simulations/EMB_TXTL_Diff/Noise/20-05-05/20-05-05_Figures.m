@@ -1,4 +1,6 @@
 %% 20-05-05 Figures
+%old Kd, old P, topology 1, all in um, min, uM, kdeg optimum, no lower
+%limit for V
 
 %% Figure 1: varying Vs in topology 1
 
