@@ -13,7 +13,8 @@ for i=1:I
     for x=1:X
         g(:,i,x,:)=y_R{genes(i)+x*G,1}';
     end
-    g(:,i,:,:)=g(:,i,:,:)./max(mean(g(:,i,:,:),1),[],'all');
+    meang=mean(g(:,i,:,:),1);
+    g(:,i,:,:)=g(:,i,:,:)/max(meang(:));
 end
 
 end
