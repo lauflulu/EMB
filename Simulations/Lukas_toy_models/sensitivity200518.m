@@ -64,71 +64,48 @@ y0=reshape(y0,1,[]); y0=y0';
 dt=10; tspan=0:dt:dt*(T-1);
 
 options=odeset('AbsTol',1e-8,'RelTol',1e-4); % set tolerances
+
 %% simulation
 tic
 
-alpha=[aLacI,aRFP,aTetR,aYFP,tau,tmRNA,a0];
-kHill=[KdTetR,nTetR,KdLacI,nLacI];
-tmat=[tmat1,tmat2];
-k=[kon, koff];
-deg=[kdeg, Kdeg];
+params=[P, ...
+    aLacI, aRFP, aTetR, aYFP, tau, tmRNA, a0, ...
+    KdTetR, nTetR, KdLacI, nLacI, ...
+    tmat1, tmat2, ...
+    kon, koff, ...
+    kdeg, Kdeg];
 
-for n=1:N
-    [t,y]=ode23s(@(t,y)EMB_ODE1(t, y, I, X, A(n,:), V(n,:), P, alphamax(n,:), alpha, kHill, k, tmat, deg),tspan,y0,options);
-    Y(n,:,:,:) = reshape(permute(y,[2,1]),I,X,T);
+K=size(params,2);
+L=11;
+
+PI=zeros(3,K,L);
+varyparam=zeros(K,L);
+
+for k=1:K
+    newparams=params;
+    varyparam(k,:)=logspace(log10(params(1,k)/10),log10(params(1,k)*10),L);
+    for l=1:L
+        newparams(1,k)=varyparam(k,l);
+        for n=1:N
+            [t,y] = ode23s(@(t,y)EMB_ODE_sensitivity(t, y, I, X, A(n,:), V(n,:), alphamax(n,:), newparams),tspan,y0,options);
+            Y(n,:,:,:) = reshape(permute(y,[2,1]),I,X,T);
+            
+        end
+        g = EMB_normalizeG(Y(:,[8,5],2:6,end));
+        [PI(:,k,l),~] = EMB_g2piSGA(g,100);
+    end
 end
 toc
 
-
-%% PI
-g = EMB_normalizeG(Y(:,[8,5],2:6,2:end));
-time=t(2:end)/60;
-
-meanY=squeeze(mean(Y(:,8,2:6,2:end),1));
-meanR=squeeze(mean(Y(:,5,2:6,2:end),1));
-stdY=squeeze(std(Y(:,8,2:6,2:end),[],1));
-stdR=squeeze(std(Y(:,5,2:6,2:end),[],1));
-
-[PIsga,perm] = EMB_g2piSGA(g,100); % without extrapolation since N=1000
-[pdf,maxG]=EMB_g2binPDF(g,1/10);
 %% plots
-
-close all
 figure(1)
-    for x=1:5
-    subplot(4,5,x)
-        hold all
-        plot(time, squeeze(Y(:,8,x+1,2:end)),'-k');
-        plot(time, meanY(x,:), '-c','LineWidth',2);
-        plot(time, meanY(x,:)+stdY(x,:), '--c','LineWidth',2);
-        plot(time, meanY(x,:)-stdY(x,:), '--c','LineWidth',2);
-        ylim([0,1.1*max(Y(:,8,:,2:end),[],'all')]); ylabel('YFPmat (au)');
-        box('on'); 
-        xlim([0,7.5]); xticks(0:2.5:7.5);
-    subplot(4,5,5+x)
-        hold all
-        plot(time, squeeze(Y(:,5,x+1,2:end)),'-k')
-        plot(time, meanR(x,:), '-r','LineWidth',2);
-        plot(time, meanR(x,:)+stdR(x,:), '--r','LineWidth',2);
-        plot(time, meanR(x,:)-stdR(x,:), '--r','LineWidth',2);
-       ylim([0,1.1*max(Y(:,5,:,2:end),[],'all')]); ylabel('RFPmat (au)');
-        box('on'); 
-        xlim([0,7.5]); xticks(0:2.5:7.5);
-    subplot(4,5,10+x)
-        hold all
-        
-        plot([0,time(end)],[0.2,0.2],'--b','LineWidth',2)
-        plot([0,time(end)],[2,2],'-b','LineWidth',2)
-        plot([0,time(end)],[20,20],'--b','LineWidth',2)
-        plot(time, squeeze(Y(:,1,x+1,2:end)),'-k')
-        box('on'); ylabel('IPTG (mM)');
-        xlim([0,7.5]); xticks(0:2.5:7.5);
+    for k=1:K
+        subplot(3,6,k)
+            plot(varyparam(k,:),squeeze(PI(:,k,:)))
+            box('on')
+            ylabel('PI (bits)')
+            xlabel(sprintf('Parameter %d', k))
+            xlim([0.95*varyparam(k,1),1.05*varyparam(k,L)]);
+            set(gca,'XScale','log')
+            xticks(varyparam(k,1:5:end))
     end
-    subplot(4,1,4)
-        hold all
-        plot(time, PIsga', '-');set(gca,'ColorOrderIndex',1)
-        %plot(time, PIsga+stdPIsga, '--');set(gca,'ColorOrderIndex',1)
-        %plot(time, PIsga-stdPIsga, '--');
-        box('on');% xlim([0,7.5]);ylim([-0.1,1.5]);
-        xlabel('Time (h)');ylabel('I_{SGA}')
-        legend('g1','g2','joint');%xticks([0:2.5:7.5]);

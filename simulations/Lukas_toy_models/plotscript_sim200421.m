@@ -7,7 +7,9 @@ g = EMB_sim2g(y_R,[8,5,1]);
 g=g(:,:,:,2:end);
 time=t(2:end)/60;
 
+tic
 meanG=EMB_g2meanG(g);
+toc
 covG=EMB_g2covG(g);
 
 meanY=squeeze(meanG(1,1,:,:));

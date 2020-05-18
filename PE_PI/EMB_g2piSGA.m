@@ -15,16 +15,16 @@ for p=1:P
     condensedDim=condensedDim(1:I~=perm(p,perm(p,:)~=0));
     keptDim=perm(p,perm(p,:)~=0); D=size(keptDim,2);
     if size(condensedDim,2)~=0
-        pdf=sum(nPDFg,condensedDim);
+        pdf=EMB_sum(nPDFg,condensedDim);
     else
         pdf=nPDFg;
     end
-    pdf_gx=pdf./sum(pdf,1:I); %conditional pdf p({g_i}|x,t)
-    pdf_g=sum(pdf,I+1)./sum(pdf,1:(I+1)); %marginal pdf_g(g)
-    pdf_x=sum(pdf,1:I)./sum(pdf,1:(I+1)); % marginal pdf_x(x)
+    pdf_gx=pdf./EMB_sum(pdf,1:I); %conditional pdf p({g_i}|x,t)
+    pdf_g=EMB_sum(pdf,I+1)./EMB_sum(pdf,1:(I+1)); %marginal pdf_g(g)
+    pdf_x=EMB_sum(pdf,1:I)./EMB_sum(pdf,1:(I+1)); % marginal pdf_x(x)
     
     totalS=EMB_pdf2entropy(pdf_g,keptDim);
-    noiseS=sum(EMB_pdf2entropy(pdf_gx,keptDim).*pdf_x,3);
+    noiseS=EMB_sum(EMB_pdf2entropy(pdf_gx,keptDim).*pdf_x,3);
     pi(p,:)= totalS-noiseS;
 end
 
