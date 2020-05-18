@@ -13,6 +13,8 @@ I0 = d; % IPTG, M
 r = mu + sigma.*randn(runs,1); % random values within normal distribution
 
 for i=1:runs
+    if r(i) <= 0.5e-12
+        while r(i) <= 0.5e-12
             r(i) = mu + sigma.*randn(1,1);
         end
     end
