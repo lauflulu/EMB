@@ -1,15 +1,12 @@
 clear all
 close all
 %%
-
 load('20-04-21_Figure2.mat')
 g = EMB_sim2g(y_R,[8,5,1]);
 g=g(:,:,:,2:end);
 time=t(2:end)/60;
 
-tic
 meanG=EMB_g2meanG(g);
-toc
 covG=EMB_g2covG(g);
 
 meanY=squeeze(meanG(1,1,:,:));
@@ -17,7 +14,7 @@ meanR=squeeze(meanG(1,2,:,:));
 stdY=squeeze(covG(1,1,:,:)).^0.5;
 stdR=squeeze(covG(2,2,:,:)).^0.5;
 
-[PIsga,perm] = EMB_g2piSGA(g(:,1:2,:,:),100); % without extrapolation since N=1000
+[PIsga,perm] = EMB_g2piDIR(g(:,1:2,:,:),10); % without extrapolation since N=1000
 %%
 T=12;
 close all

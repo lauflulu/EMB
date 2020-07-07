@@ -6,6 +6,18 @@ __pycache__/
 # Matlab temporary files
 *.asv
 
+# image and other non-text files
+*.png
+*.pdf
+*.ai
+*.fig
+*.jpg
+*.tiff
+*.tif
+*.svg
+*.eps
+*.DS_Store
+
 # C extensions
 *.so
 
