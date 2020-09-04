@@ -15,6 +15,8 @@ datafiles={'data\data_full_100mM_v2.mat',...
     
 S=length(datafiles);
     
+load('\\Tuphe14-lab-ws\b\laufinger\EMB_git\PE_PI\analyze_data\PI_200715.mat')
+
 %% PI SGA, time traces
 time=0:90; time=time*5/60;
 tpoints=1:91;
@@ -41,32 +43,38 @@ for s=1:S
     % number of iterations for each (bin,m)
     K=100;
     %[PIsga{s,1},stdPIsga{s,1}] = EMB_g2piSGA(g,100);
-    [PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePI(@EMB_g2piSGA,g,K,m,100,false,false);
+    [PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePIv1(@EMB_g2piSGA,g,K,m,100,false,false);
     %[PIsga{s,1},stdPIsga{s,1}] = EMB_extrapolatePIv3(@EMB_g2piSGA,g,K,m,100,false,true);
-    [PIdir{s,1},stdPIdir{s,1}] = EMB_extrapolatePI(@EMB_g2piDIR,g,K,m,2:6,false,false);
+    [PIdir{s,1},stdPIdir{s,1}] = EMB_extrapolatePIv1(@EMB_g2piDIR,g,K,m,2:6,false,false);
+    s
+    toc
 end
 toc
-%%
+% plots SGA
+figure(11)
 for s=1:S
-    
-    load(datafiles{s});
-
-    fusionTime=91;
-    g=EMB_data2g(data,fusionTime);
-    g=g(:,:,:,tpoints);
-    [N,I,X,T]=size(g);
-    figure(11)
-    
-    
-        subplot(5,2,s)
-            hold all
-            plot(time(tpoints), PIsga{s,1}, '-');set(gca,'ColorOrderIndex',1)
-            plot(time(tpoints), PIsga{s,1}+stdPIsga{s,1}, '--');set(gca,'ColorOrderIndex',1)
-            plot(time(tpoints), PIsga{s,1}-stdPIsga{s,1}, '--');
-            box('on'); xlim([0,7.5]);ylim([-0.1,1.5]);
-            xlabel('Time (h)');ylabel('I_{SGA}')
-            legend('g1','g2','joint');xticks([0:2.5:7.5]);
-            title(sprintf('N = %d',N));
+    subplot(5,2,s)
+        hold all
+        plot(time, PIsga{s,1}, '-');set(gca,'ColorOrderIndex',1)
+        plot(time, PIsga{s,1}+stdPIsga{s,1}, '--');set(gca,'ColorOrderIndex',1)
+        plot(time, PIsga{s,1}-stdPIsga{s,1}, '--');
+        box('on'); xlim([0,7.5]);ylim([-0.1,1.5]);
+        xlabel('Time (h)');ylabel('I_{SGA}')
+        legend('g1','g2','joint');xticks([0:2.5:7.5]);
+        title(sprintf('N = %d',N));
+end
+% plots DIR
+figure(12)
+for s=1:S
+    subplot(5,2,s)
+        hold all
+        plot(time, PIdir{s,1}, '-');set(gca,'ColorOrderIndex',1)
+        plot(time, PIdir{s,1}+stdPIdir{s,1}, '--');set(gca,'ColorOrderIndex',1)
+        plot(time, PIdir{s,1}-stdPIdir{s,1}, '--');
+        box('on'); xlim([0,7.5]);ylim([-0.1,1.5]);
+        xlabel('Time (h)');ylabel('I_{DIR}')
+        legend('g1','g2','joint');xticks([0:2.5:7.5]);
+        title(sprintf('N = %d',N));
 end
 %% endpoint PI comparison
  %load('analyze_data\PIdir_t91_200430.mat')

@@ -307,9 +307,9 @@ for s=3%1:length(datafiles)
             
         subplot(1,2,2)
             hold all
-            plot(time, PIsga, '-');set(gca,'ColorOrderIndex',1)
-            plot(time, PIsga+stdPIsga, '--');set(gca,'ColorOrderIndex',1)
-            plot(time, PIsga-stdPIsga, '--');
+            plot(time, PIsga{3,1}, '-');set(gca,'ColorOrderIndex',1)
+            plot(time, PIsga{3,1}+stdPIsga{3,1}, '--');set(gca,'ColorOrderIndex',1)
+            plot(time, PIsga{3,1}-stdPIsga{3,1}, '--');
             box('on'); xlim([0,7.5]);ylim([-0.1,1.2]);
             xlabel('Time (h)');ylabel('I_{SGA}')
             legend('g1','g2','joint');xticks([0:2.5:7.5]);

@@ -2,7 +2,7 @@ clear all
 close all
 
 %% set parameters
-N = 10; % number of samples
+N = 50; % number of samples
 I = 8; % IPTG, free LacI, IPTG-LacI, RFP, RFPmat, TetR, YFP, YFPmat
 X = 6; % 1 sender 5 receivers
 T = 46;
@@ -23,7 +23,8 @@ A = EMB_V2A(V, theta);
 
 % gene expression
 CValpha =0.25;
-alphamax = 6e-3*(1+CValpha*randn(N,X)); % uM/min expression factor, around 100pM/s and up, from Schwarz-Schilling, Aufinger
+alphamax1 = 6e-3*(1+CValpha*randn(N,X)); % uM/min expression factor, around 100pM/s and up, from Schwarz-Schilling, Aufinger
+alphamax2 = alphamax1;% 6e-3*(1+CValpha*randn(N,X)); % uM/min expression factor, around 100pM/s and up, from Schwarz-Schilling, Aufinger
 
 aLacI = 3*1000/1077; % rNTPs length LacI, factor of expression normalized, and plasmid ratio
 aRFP = 3*1000/693; % rNTPs length RFP
@@ -88,13 +89,14 @@ L=11;
 PI=zeros(3,K,L);
 varyparam=zeros(K,L);
 
-for k=1
+for k=1%:K
     newparams=params;
     varyparam(k,:)=logspace(log10(params(1,k)/10),log10(params(1,k)*10),L);
-    for l=1:L
+    for l=6%1:L
         newparams(1,k)=varyparam(k,l);
         for n=1:N
-            [t,y] = ode23s(@(t,y)EMB_ODE_sensitivity(t, y, I, X, A(n,:), V(n,:), alphamax(n,:), newparams),tspan,y0,options);
+            [t,y] = ode23s(@(t,y)EMB_ODE_sensitivity_indAlpha(t, y, I, X,...
+                A(n,:), V(n,:), alphamax1(n,:), alphamax2(n,:), newparams),tspan,y0,options);
             Y(n,:,:,:) = reshape(permute(y,[2,1]),I,X,T);
             
         end
