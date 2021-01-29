@@ -110,17 +110,12 @@ for d=3%1:Ndir
     waitbar(d/Ndir,total_wait,sprintf('Elapsed: %.0f s',toc(total_tic)));
 end
 
-%%
+%% display
 II=reshape(I_corr,1,[])';
 I00=reshape(I0_v,1,[])';
 
 z0=reshape(sf(x0_v,y0_v),size(I0,1),size(I0,2));
 
-% x0=x0';
-% y0=y0';
-% z0=z0';
-% I0=I0';
-% B0=B0';
 
 
 
@@ -128,17 +123,8 @@ figure(2)
         
         subplot(1,2,1)
         hold all
-%         surf(x_down,y_down,z)
-%         scatter3(x_down(~(B_down==0)),y_down(~(B_down==0)),I_down(~(B_down==0))'.')
         surf(x0,y0,z0,'edgecolor','none');
-%         x0=x0(I_corr<50);
-%         y0=y0(I_corr<50);
-%         z0=z0(I_corr<50);
-%         I0=I0(I_corr<50);
-%         B0=B0(I_corr<50);
-%         C=(double(I0)-min(double(I0)))./(max(double(I0))-min(double(I0)))*0.8;
-%         C=reshape(C,[],1); x0=reshape(x0,[],1); y0=reshape(y0,[],1); I0=reshape(I0,[],1);
-%         scatter3(x0,y0,I0,[],[C C C],'.')
+
         C=(double(I0(~(B0==0)))-min(double(I0(~(B0==0)))))./(max(double(I0(~(B0==0))))-min(double(I0(~(B0==0)))))*0.8;
         scatter3(x0(~(B0==0)),y0(~(B0==0)),I0(~(B0==0)),...
             [],[C C C],'.')
@@ -146,7 +132,6 @@ figure(2)
          xlabel('x (px)')
         ylabel('y (px)')
         zlabel('gray value')
-%        plot(sf,[x0_v(~B0_v),y0_v(~B0_v)],I00(~B0_v))
         set(gca,'Ydir','reverse')
         view(-15,30)
         xlim([0,800]); ylim([0,400]); zlim([600,1600]);

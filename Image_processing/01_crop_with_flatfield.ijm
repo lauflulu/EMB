@@ -1,3 +1,5 @@
+// crops samples from imaging positions
+
 function cropMulti(openDir, saveDir, filename,m){
 	nameL=lengthOf(filename);
 	titleName=substring(filename, 0, nameL-7);

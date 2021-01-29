@@ -1,3 +1,4 @@
+// converts .nd2 files into individual .tif stacks for each channel with 2x2 binning
 function binSplit(openDir, saveDir, filename, series){
 	// FYI
 	print(filename);

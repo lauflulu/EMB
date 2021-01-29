@@ -98,7 +98,7 @@ for (a = 0; a < dataSetList.length; a++) {
 	// loops through all position stacks
 	for (i = 0; i < list.length; i++){
 		if (endsWith(list[i], "C1.tif")){ 
-	    	// creates binary videos based on pricise segmentation, using a combination of BF contrast and edge detection
+	    	// creates binary videos based on accurate segmentation, using a combination of BF contrast and edge detection
 	    	binaryBF(openDir, saveDir, list[i]);
 	    	
 	    	// the timer

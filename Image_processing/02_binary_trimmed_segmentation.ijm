@@ -57,7 +57,7 @@ for (a = 0; a < dataSetList.length; a++) {
 	// loop through all position stacks
 	for (i = 0; i < list.length; i++){
 		if (endsWith(list[i], "C1.tif")){
-			// creates trimmed binary masks using segmentation based on edge detection
+			// creates trimmed binary masks using trimmed segmentation based on edge detection
 	    	binaryBF(openDir, saveDir, list[i]);
 
 	    	// the timer

@@ -1,21 +1,23 @@
+% requires https://github.com/kkapsner/Matlab
 clear all
 close all
 
+% first run this section
 tracking = DropletTracking(); tracking.open();
 %selectFolder
 %select dummy position
 %segment dummy position
 %configure tracker
 %remove dummy position
-%run script
+%run the next section
 %track
-%%
+%% load all files into tracking automatically
 currentDirectory=cd;
 tiffDirectory=[currentDirectory,'\o6-final_videos\'];
 cd(tiffDirectory);
 tiffList=dir('*C0.tif');
 NC=4; %=BF+Fluorescence, not binary
-%
+
 for p=1:size(tiffList,1)
     for i=0:NC
         tiffName=tiffList(p).name;

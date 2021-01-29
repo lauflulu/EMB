@@ -1,3 +1,5 @@
+% measure DIB area and droplet volumes
+
 clear all
 close all
 clc
@@ -91,7 +93,7 @@ for p=3%:size(datafiles,2)
         data(n).DIB=DIB;
         end
     end
-    %save([datafiles{p},'_v2.mat'],'data');
+    save([datafiles{p},'_v2.mat'],'data');
 end
 
 %% plots
