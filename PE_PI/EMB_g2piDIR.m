@@ -33,17 +33,16 @@ for p=1:P
     noiseS=sum(EMB_pdf2entropy(pdf_gx,keptDim).*pdf_x,3);
     pi(p,:)= totalS-noiseS;
     % eq. (10) Tkacik (2015)
-    %pi(p,:)= EMB_pdf2entropy(pdf_x,I+1)-sum(EMB_pdf2entropy(pdf_xg,I+1).*pdf_g,keptDim);
+    % pi(p,:)= EMB_pdf2entropy(pdf_x,I+1)-sum(EMB_pdf2entropy(pdf_xg,I+1).*pdf_g,keptDim);
     % eq. (7) Tkacik (2015)
-%                 int=zeros(5,T);
-%                 for x=1:5
-%                     l=pdf(:,:,x,:)./(pdf_g(:,:,1,:));l(isnan(l))=0;
-%                     l=log2(l); 
-%                     l(l==-inf)=0;
-%                     int(x,:)=sum(pdf(:,:,x,:).*l,keptDim);
-%                 end
-%                 pi(p,:)=sum(squeeze(pdf_x) .* int,1);
+    % int=zeros(5,T);
+    % for x=1:5
+    % l=pdf(:,:,x,:)./(pdf_g(:,:,1,:));l(isnan(l))=0;
+    % l=log2(l); 
+    % l(l==-inf)=0;
+    % int(x,:)=sum(pdf(:,:,x,:).*l,keptDim);
+    % end
+    % pi(p,:)=sum(squeeze(pdf_x) .* int,1);
 end
-
 end
 
