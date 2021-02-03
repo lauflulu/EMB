@@ -1,3 +1,5 @@
+// requires https://imagejdocu.tudor.lu/doku.php?id=plugin:segmentation:adjustable_watershed:start
+
 function binaryBF(openDir, saveDir, filename){
 	open(openDir + filename);
 
