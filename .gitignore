@@ -9,6 +9,7 @@ __pycache__/
 # image and other non-text files
 *.png
 *.pdf
+*.docx
 *.ai
 *.fig
 *.jpg
