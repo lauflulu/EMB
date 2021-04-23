@@ -161,9 +161,8 @@ for p=1:size(datafiles,2)
 end
 
 %% testing only
+%
 
-
-%%
 function ddxpdf=ddx_f(f)
     [~,Lx]=size(f);
     leftEdge=f(:,2)-f(:,1);
