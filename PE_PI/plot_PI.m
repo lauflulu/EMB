@@ -205,7 +205,7 @@ end
     ylabel('PI_{DIR}(7.5 h) (bits)')
     box('on');legend();
     
-%%
+%% PIsga vs. IPTG concentration
 S=size(PIsga,1);
  t=91;
  PIsga_end=zeros(S,3);
